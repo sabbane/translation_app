@@ -122,13 +122,16 @@ public class DocumentController {
 
     @PostMapping("/{id}/assign")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Document> assignReviewer(@PathVariable UUID id, @RequestParam UUID reviewerId) {
+    public ResponseEntity<Document> assignReviewer(
+            @PathVariable UUID id, 
+            @RequestParam UUID reviewerId,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime deadline) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         User currentUser = getCurrentUser();
-        if (!document.getCreator().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only creator can assign reviewer");
+        if (currentUser.getRole() != Role.ADMIN && !document.getCreator().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only creator or admin can assign reviewer");
         }
 
         User reviewer = userRepository.findById(reviewerId)
@@ -139,6 +142,7 @@ public class DocumentController {
         }
 
         document.setReviewer(reviewer);
+        document.setReviewDeadline(deadline);
         document.setStatus(DocumentStatus.UEBERSETZT); // Status changes to translated when submitted for review
         
         return ResponseEntity.ok(documentRepository.save(document));

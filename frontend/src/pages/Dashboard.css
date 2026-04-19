@@ -111,3 +111,20 @@
   font-weight: 500;
 }
 
+
+/* Deadline Highlighting */
+.row-deadline-expired {
+  background-color: rgba(255, 0, 0, 0.05) !important;
+}
+.row-deadline-expired td {
+  color: #e53e3e !important;
+  font-weight: 600;
+}
+
+.row-deadline-warning {
+  background-color: rgba(255, 165, 0, 0.05) !important;
+}
+.row-deadline-warning td {
+  color: #d69e2e !important;
+  font-weight: 600;
+}

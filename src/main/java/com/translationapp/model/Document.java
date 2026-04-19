@@ -16,6 +16,8 @@ public class Document {
     @Column(nullable = false)
     private String title;
 
+    private java.time.LocalDateTime reviewDeadline;
+
     @Column(columnDefinition = "TEXT")
     private String originalText;
 
@@ -49,6 +51,9 @@ public class Document {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public java.time.LocalDateTime getReviewDeadline() { return reviewDeadline; }
+    public void setReviewDeadline(java.time.LocalDateTime reviewDeadline) { this.reviewDeadline = reviewDeadline; }
 
     public String getOriginalText() { return originalText; }
     public void setOriginalText(String originalText) { this.originalText = originalText; }
@@ -84,6 +89,7 @@ public class Document {
 
     public static class DocumentBuilder {
         private String title;
+        private java.time.LocalDateTime reviewDeadline;
         private String originalText;
         private String translatedText;
         private String sourceLanguage;
@@ -91,6 +97,7 @@ public class Document {
         private User creator;
 
         public DocumentBuilder title(String title) { this.title = title; return this; }
+        public DocumentBuilder reviewDeadline(java.time.LocalDateTime reviewDeadline) { this.reviewDeadline = reviewDeadline; return this; }
         public DocumentBuilder originalText(String originalText) { this.originalText = originalText; return this; }
         public DocumentBuilder translatedText(String translatedText) { this.translatedText = translatedText; return this; }
         public DocumentBuilder sourceLanguage(String sourceLanguage) { this.sourceLanguage = sourceLanguage; return this; }
@@ -100,6 +107,7 @@ public class Document {
         public Document build() {
             Document doc = new Document();
             doc.setTitle(title);
+            doc.setReviewDeadline(reviewDeadline);
             doc.setOriginalText(originalText);
             doc.setTranslatedText(translatedText);
             doc.setSourceLanguage(sourceLanguage);

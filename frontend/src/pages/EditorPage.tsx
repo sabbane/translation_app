@@ -118,14 +118,10 @@ const EditorPage: React.FC = () => {
     }
   };
 
-  const handleAssign = async () => {
-    if (!selectedReviewerId) {
-      alert('Bitte wählen Sie einen Reviewer aus');
-      return;
-    }
+  const handleAssign = async (reviewerId: string, deadline: string) => {
     try {
       setLoading(true);
-      await api.post(`/documents/${id}/assign?reviewerId=${selectedReviewerId}`);
+      await api.post(`/documents/${id}/assign?reviewerId=${reviewerId}&deadline=${deadline}`);
       alert('Zur Überprüfung eingereicht!');
       navigate('/');
     } catch (err) {
@@ -166,21 +162,11 @@ const EditorPage: React.FC = () => {
           )}
 
           {user?.role === 'USER' && status === 'OFFEN' && id && (
-            <div className="assign-box">
-              <select 
-                value={selectedReviewerId} 
-                onChange={(e) => setSelectedReviewerId(e.target.value)}
-                className="reviewer-select"
-              >
-                <option value="">Reviewer wählen...</option>
-                {reviewers.map(r => (
-                  <option key={r.id} value={r.id}>{r.username}</option>
-                ))}
-              </select>
-              <button onClick={handleAssign} className="btn btn-primary" disabled={loading || !selectedReviewerId}>
-                <Send size={18} /> Zur Review einreichen
-              </button>
-            </div>
+            <AssignmentModal 
+              reviewers={reviewers} 
+              onAssign={handleAssign} 
+              loading={loading} 
+            />
           )}
         </div>
       </div>
@@ -227,6 +213,110 @@ const EditorPage: React.FC = () => {
             placeholder="Die Übersetzung erscheint hier..."
             readOnly={isReadOnly}
           />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface AssignmentModalProps {
+  reviewers: Reviewer[];
+  onAssign: (reviewerId: string, deadline: string) => void;
+  loading: boolean;
+}
+
+const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, loading }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [reviewerId, setReviewerId] = useState('');
+  const [deadlineType, setDeadlineType] = useState<'days' | 'date'>('days');
+  const [days, setDays] = useState('14');
+  const [date, setDate] = useState('');
+
+  const handleSubmit = () => {
+    if (!reviewerId) {
+      alert('Bitte Reviewer wählen');
+      return;
+    }
+
+    let finalDeadline = '';
+    if (deadlineType === 'days') {
+      const d = new Date();
+      d.setDate(d.getDate() + parseInt(days));
+      finalDeadline = d.toISOString();
+    } else {
+      if (!date) {
+        alert('Bitte Datum wählen');
+        return;
+      }
+      finalDeadline = new Date(date).toISOString();
+    }
+
+    onAssign(reviewerId, finalDeadline);
+  };
+
+  if (!isOpen) {
+    return (
+      <button onClick={() => setIsOpen(true)} className="btn btn-primary" disabled={loading}>
+        <Send size={18} /> Zur Review einreichen
+      </button>
+    );
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content card">
+        <h3>Dokument zur Review einreichen</h3>
+        
+        <div className="form-group">
+          <label>Reviewer auswählen</label>
+          <select value={reviewerId} onChange={(e) => setReviewerId(e.target.value)} className="reviewer-select">
+            <option value="">Wählen...</option>
+            {reviewers.map(r => (
+              <option key={r.id} value={r.id}>{r.username}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Überprüfungsfrist festlegen</label>
+          <div className="deadline-toggle">
+            <button 
+              className={`btn-toggle ${deadlineType === 'days' ? 'active' : ''}`}
+              onClick={() => setDeadlineType('days')}
+            >
+              In Tagen
+            </button>
+            <button 
+              className={`btn-toggle ${deadlineType === 'date' ? 'active' : ''}`}
+              onClick={() => setDeadlineType('date')}
+            >
+              Datum wählen
+            </button>
+          </div>
+
+          {deadlineType === 'days' ? (
+            <input 
+              type="number" 
+              value={days} 
+              onChange={(e) => setDays(e.target.value)} 
+              min="1"
+              className="deadline-input"
+            />
+          ) : (
+            <input 
+              type="date" 
+              value={date} 
+              onChange={(e) => setDate(e.target.value)}
+              className="deadline-input"
+            />
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={() => setIsOpen(false)} className="btn btn-secondary">Abbrechen</button>
+          <button onClick={handleSubmit} className="btn btn-primary" disabled={!reviewerId || loading}>
+            Zuweisen & Einreichen
+          </button>
         </div>
       </div>
     </div>

@@ -20,6 +20,7 @@ interface Document {
   creator: UserInfo;
   reviewer?: UserInfo;
   createdAt: string;
+  reviewDeadline?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -120,14 +121,27 @@ const Dashboard: React.FC = () => {
                 <th>Status</th>
                 {user?.role === 'ADMIN' && <th>Ersteller</th>}
                 <th>Reviewer</th>
+                <th>Frist</th>
                 <th>Datum</th>
                 <th>Aktionen</th>
               </tr>
             </thead>
             <tbody>
-              {filteredDocuments.map((doc) => (
-                <tr key={doc.id}>
-                  <td className="text-truncate" title={doc.title}>
+              {filteredDocuments.map((doc) => {
+                const deadlineDate = doc.reviewDeadline ? new Date(doc.reviewDeadline) : null;
+                const now = new Date();
+                const diffTime = deadlineDate ? deadlineDate.getTime() - now.getTime() : null;
+                const diffDays = diffTime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : null;
+
+                let rowClass = '';
+                if (deadlineDate && doc.status !== 'BESTAETIGT') {
+                  if (diffTime! < 0) rowClass = 'row-deadline-expired';
+                  else if (diffDays! < 7) rowClass = 'row-deadline-warning';
+                }
+
+                return (
+                  <tr key={doc.id} className={rowClass}>
+                    <td className="text-truncate" title={doc.title}>
                     {doc.title}
                   </td>
                   <td>
@@ -138,6 +152,7 @@ const Dashboard: React.FC = () => {
                   <td>{getStatusBadge(doc.status)}</td>
                   {user?.role === 'ADMIN' && <td>{doc.creator.username}</td>}
                   <td>{doc.reviewer?.username || '-'}</td>
+                  <td>{doc.reviewDeadline ? new Date(doc.reviewDeadline).toLocaleDateString() : '-'}</td>
                   <td>{new Date(doc.createdAt).toLocaleDateString()}</td>
                   <td>
                     <div className="action-buttons">
@@ -156,7 +171,8 @@ const Dashboard: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
