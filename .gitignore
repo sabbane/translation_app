@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+bin/
+
+# IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Frontend (dist and node_modules are already in frontend/.gitignore, but good to have here too just in case)
+frontend/node_modules/
+frontend/dist/
+frontend/.env*
+!frontend/.env.example
+
+# Logs
+*.log
