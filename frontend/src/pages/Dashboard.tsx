@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import { Pencil, Trash2, Plus, LayoutGrid, List, FileText, CheckCircle2, Clock, AlertCircle, Calendar } from 'lucide-react';
 import api from '../api/axios';
 import './Dashboard.css';
 import Modal from '../components/Modal';
@@ -31,6 +31,7 @@ const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   // Modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -117,26 +118,40 @@ const Dashboard: React.FC = () => {
         type="danger"
       />
 
-      {user?.role === 'ADMIN' && (
-        <div className="dashboard-controls">
-          <input 
-            type="text" 
-            placeholder="Dokumente suchen nach Text, Sprache oder Benutzername..." 
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
+      <div className="dashboard-controls">
+        <input 
+          type="text" 
+          placeholder="Dokumente suchen..." 
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="search-input"
+        />
+        <div className="view-toggle">
+          <button 
+            className={viewMode === 'table' ? 'active' : ''} 
+            onClick={() => setViewMode('table')}
+            title="Listenansicht"
+          >
+            <List size={20} />
+          </button>
+          <button 
+            className={viewMode === 'grid' ? 'active' : ''} 
+            onClick={() => setViewMode('grid')}
+            title="Kachelansicht"
+          >
+            <LayoutGrid size={20} />
+          </button>
         </div>
-      )}
+      </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="data-table-container">
+      <div className={viewMode === 'table' ? 'data-table-container' : ''}>
         {loading ? (
           <div className="loading">Lade Dokumente...</div>
         ) : filteredDocuments.length === 0 ? (
           <div className="empty-state">Keine Dokumente gefunden.</div>
-        ) : (
+        ) : viewMode === 'table' ? (
           <table className="data-table">
             <thead>
               <tr>
@@ -201,6 +216,78 @@ const Dashboard: React.FC = () => {
               })}
             </tbody>
           </table>
+        ) : (
+          <div className="document-grid">
+            {filteredDocuments.map((doc) => {
+              const deadlineDate = doc.reviewDeadline ? new Date(doc.reviewDeadline) : null;
+              const now = new Date();
+              const diffTime = deadlineDate ? deadlineDate.getTime() - now.getTime() : null;
+              const diffDays = diffTime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : null;
+
+              let cardClass = 'doc-card';
+              if (doc.status === 'ERLEDIGT') {
+                // Done documents don't need warning classes
+              } else if (deadlineDate) {
+                if (diffTime! < 0) cardClass += ' expired';
+                else if (diffDays! < 7) cardClass += ' warning';
+              }
+
+              const words = doc.title.split(' ');
+              const truncatedTitle = words.length > 2 
+                ? words.slice(0, 2).join(' ') + '...' 
+                : doc.title;
+
+              return (
+                <div key={doc.id} className={cardClass} onClick={() => window.location.href = `/editor/${doc.id}`}>
+                  <div className="doc-icon-wrapper">
+                    <FileText size={32} />
+                    {doc.status === 'ERLEDIGT' && (
+                      <div className="status-seal" title="Abgeschlossen">
+                        <CheckCircle2 size={20} fill="white" />
+                      </div>
+                    )}
+                    {doc.status === 'IN_PRUEFUNG' && (
+                      <div className="status-seal" style={{ color: '#3b82f6' }} title="In Prüfung">
+                        <Clock size={20} fill="white" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="doc-card-title" title={doc.title}>{truncatedTitle}</div>
+                  
+                  <div className="doc-card-info">
+                    <div className="doc-card-langs">
+                      {doc.sourceLanguage} → {doc.targetLanguage}
+                    </div>
+                    <div className="doc-card-status">
+                      {getStatusBadge(doc.status)}
+                    </div>
+                  </div>
+
+                  {doc.reviewDeadline && (
+                    <div className="card-deadline">
+                      {diffTime! < 0 ? <AlertCircle size={14} /> : <Calendar size={14} />}
+                      {new Date(doc.reviewDeadline).toLocaleDateString()}
+                    </div>
+                  )}
+
+                  <div className="doc-card-actions">
+                    {(user?.role === 'ADMIN' || (user?.role === 'USER' && doc.creator.id === user.id)) && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(doc);
+                        }} 
+                        className="btn-icon btn-delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

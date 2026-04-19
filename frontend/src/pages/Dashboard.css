@@ -107,3 +107,210 @@
   color: #059669 !important;
   font-weight: 500;
 }
+
+/* Premium Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.document-grid, .data-table-container {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* View Toggle Styles */
+.view-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--surface-solid);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.view-toggle button {
+  background: none;
+  border: none;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+}
+
+.view-toggle button:hover:not(.active) {
+  background: var(--primary-soft);
+  color: var(--primary-color);
+}
+
+.view-toggle button.active {
+  background: white;
+  color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: scale(1.05);
+}
+
+/* Grid View Styles */
+.document-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .document-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.doc-card {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  min-height: 180px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.doc-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+  border-color: var(--primary-light);
+}
+
+.doc-icon-wrapper {
+  background: var(--primary-soft);
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--primary-color);
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.doc-card:hover .doc-icon-wrapper {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+.status-seal {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: white;
+  border-radius: 50%;
+  color: #10b981;
+  display: flex;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  padding: 4px;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
+}
+
+.doc-card-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  text-align: center;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.doc-card-langs {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: var(--primary-soft);
+  padding: 6px 16px;
+  border-radius: 30px;
+  letter-spacing: 0.02em;
+}
+
+/* Deadline Visuals in Cards */
+.doc-card.expired {
+  border: 2px solid #ef4444;
+  background: linear-gradient(180deg, #fff1f2 0%, white 100%);
+}
+
+.doc-card.warning {
+  border: 2px solid #f59e0b;
+  background: linear-gradient(180deg, #fffbeb 0%, white 100%);
+}
+
+.card-deadline {
+  margin-top: auto;
+  font-size: 0.8rem;
+  padding: 8px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  background: var(--background);
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.expired .card-deadline {
+  background: #ef4444;
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.warning .card-deadline {
+  background: #f59e0b;
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.doc-card-actions {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s ease;
+}
+
+.doc-card:hover .doc-card-actions {
+  opacity: 1;
+  transform: translateX(0);
+}
