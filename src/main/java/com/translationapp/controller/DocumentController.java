@@ -69,6 +69,9 @@ public class DocumentController {
         User currentUser = getCurrentUser();
         document.setCreator(currentUser);
         document.setStatus(DocumentStatus.OFFEN);
+        if (document.getTitle() == null || document.getTitle().isEmpty()) {
+            document.setTitle("Unbenanntes Dokument");
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(documentRepository.save(document));
     }
 
@@ -107,6 +110,7 @@ public class DocumentController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Document is in review and cannot be edited by user");
         }
 
+        document.setTitle(documentDetails.getTitle());
         document.setOriginalText(documentDetails.getOriginalText());
         document.setTranslatedText(documentDetails.getTranslatedText());
         document.setSourceLanguage(documentDetails.getSourceLanguage());

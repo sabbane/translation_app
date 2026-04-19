@@ -13,6 +13,9 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
+    private String title;
+
     @Column(columnDefinition = "TEXT")
     private String originalText;
 
@@ -43,6 +46,9 @@ public class Document {
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
     public String getOriginalText() { return originalText; }
     public void setOriginalText(String originalText) { this.originalText = originalText; }
@@ -77,12 +83,14 @@ public class Document {
     }
 
     public static class DocumentBuilder {
+        private String title;
         private String originalText;
         private String translatedText;
         private String sourceLanguage;
         private String targetLanguage;
         private User creator;
 
+        public DocumentBuilder title(String title) { this.title = title; return this; }
         public DocumentBuilder originalText(String originalText) { this.originalText = originalText; return this; }
         public DocumentBuilder translatedText(String translatedText) { this.translatedText = translatedText; return this; }
         public DocumentBuilder sourceLanguage(String sourceLanguage) { this.sourceLanguage = sourceLanguage; return this; }
@@ -91,6 +99,7 @@ public class Document {
 
         public Document build() {
             Document doc = new Document();
+            doc.setTitle(title);
             doc.setOriginalText(originalText);
             doc.setTranslatedText(translatedText);
             doc.setSourceLanguage(sourceLanguage);

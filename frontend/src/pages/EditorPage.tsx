@@ -15,6 +15,7 @@ const EditorPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const [title, setTitle] = useState('');
   const [originalText, setOriginalText] = useState('');
   const [translatedText, setTranslatedText] = useState('');
   const [sourceLang, setSourceLang] = useState('EN');
@@ -60,6 +61,7 @@ const EditorPage: React.FC = () => {
       setLoading(true);
       const response = await api.get(`/documents/${id}`);
       const doc = response.data;
+      setTitle(doc.title);
       setOriginalText(doc.originalText);
       setTranslatedText(doc.translatedText || '');
       setSourceLang(doc.sourceLanguage);
@@ -77,6 +79,7 @@ const EditorPage: React.FC = () => {
     try {
       setLoading(true);
       const docData = {
+        title,
         originalText,
         translatedText,
         sourceLanguage: sourceLang,
@@ -143,6 +146,16 @@ const EditorPage: React.FC = () => {
         <button onClick={() => navigate('/')} className="btn-back">
           <ChevronLeft size={20} /> Dashboard
         </button>
+        <div className="title-input-container">
+          <input 
+            type="text" 
+            className="editor-title-input" 
+            placeholder="Dokumenttitel..." 
+            value={title} 
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={isReadOnly}
+          />
+        </div>
         {error && <div className="alert alert-error" style={{margin: '0 1rem', padding: '0.5rem', flex: 1}}>{error}</div>}
         
         <div className="editor-actions">

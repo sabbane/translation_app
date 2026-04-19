@@ -11,6 +11,7 @@ interface UserInfo {
 
 interface Document {
   id: string;
+  title: string;
   originalText: string;
   translatedText: string;
   sourceLanguage: string;
@@ -114,7 +115,7 @@ const Dashboard: React.FC = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Vorschau</th>
+                <th>Titel</th>
                 <th>Sprachen</th>
                 <th>Status</th>
                 {user?.role === 'ADMIN' && <th>Ersteller</th>}
@@ -126,8 +127,8 @@ const Dashboard: React.FC = () => {
             <tbody>
               {filteredDocuments.map((doc) => (
                 <tr key={doc.id}>
-                  <td className="text-truncate" title={doc.originalText}>
-                    {doc.originalText.substring(0, 50)}...
+                  <td className="text-truncate" title={doc.title}>
+                    {doc.title}
                   </td>
                   <td>
                     <span style={{ fontWeight: 600 }}>{doc.sourceLanguage}</span>
