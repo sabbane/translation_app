@@ -160,7 +160,7 @@ const UserManagement: React.FC = () => {
         </div>
       )}
 
-      <div className="card">
+      <div className="data-table-container">
         {loading ? (
           <div className="loading">Loading users...</div>
         ) : users.length === 0 ? (
@@ -178,8 +178,8 @@ const UserManagement: React.FC = () => {
             <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td>{u.id.substring(0, 8)}...</td>
-                  <td>{u.username}</td>
+                  <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{u.id.substring(0, 8)}...</td>
+                  <td style={{ fontWeight: 600 }}>{u.username}</td>
                   <td>
                     <span className={`role-badge role-${u.role.toLowerCase()}`}>
                       {u.role}

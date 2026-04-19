@@ -92,21 +92,20 @@ const Dashboard: React.FC = () => {
       </div>
 
       {user?.role === 'ADMIN' && (
-        <div className="dashboard-controls" style={{ marginBottom: '1rem' }}>
+        <div className="dashboard-controls">
           <input 
             type="text" 
             placeholder="Search documents by text, language, or username..." 
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="search-input"
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-main)', color: 'var(--text-primary)' }}
           />
         </div>
       )}
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="card">
+      <div className="data-table-container">
         {loading ? (
           <div className="loading">Loading documents...</div>
         ) : filteredDocuments.length === 0 ? (
@@ -116,7 +115,7 @@ const Dashboard: React.FC = () => {
             <thead>
               <tr>
                 <th>Text Snippet</th>
-                <th>Langs</th>
+                <th>Languages</th>
                 <th>Status</th>
                 {user?.role === 'ADMIN' && <th>Creator</th>}
                 <th>Reviewer</th>
@@ -130,7 +129,11 @@ const Dashboard: React.FC = () => {
                   <td className="text-truncate" title={doc.originalText}>
                     {doc.originalText.substring(0, 50)}...
                   </td>
-                  <td>{doc.sourceLanguage} → {doc.targetLanguage}</td>
+                  <td>
+                    <span style={{ fontWeight: 600 }}>{doc.sourceLanguage}</span>
+                    <span style={{ margin: '0 8px', color: 'var(--text-muted)' }}>→</span>
+                    <span style={{ fontWeight: 600 }}>{doc.targetLanguage}</span>
+                  </td>
                   <td>{getStatusBadge(doc.status)}</td>
                   {user?.role === 'ADMIN' && <td>{doc.creator.username}</td>}
                   <td>{doc.reviewer?.username || '-'}</td>

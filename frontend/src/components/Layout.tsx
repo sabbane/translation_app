@@ -31,7 +31,7 @@ const Layout: React.FC = () => {
             <div className="user-menu">
               <div className="user-info">
                 <span className="username">{user.username}</span>
-                <span className={`role-badge role-${user.role.toLowerCase()}`}>{user.role}</span>
+                <span className={`role-tag role-${user.role.toLowerCase()}`}>{user.role}</span>
               </div>
               <button onClick={handleLogout} className="btn-logout">
                 Logout
