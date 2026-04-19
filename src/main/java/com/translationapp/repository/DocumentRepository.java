@@ -18,12 +18,12 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
     List<Document> findAllByReviewer(User reviewer);
 
     @org.springframework.transaction.annotation.Transactional
-    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Modifying(flushAutomatically = true, clearAutomatically = true)
     @org.springframework.data.jpa.repository.Query("DELETE FROM Document d WHERE d.creator = :creator")
     void deleteByCreator(com.translationapp.model.User creator);
 
     @org.springframework.transaction.annotation.Transactional
-    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Modifying(flushAutomatically = true, clearAutomatically = true)
     @org.springframework.data.jpa.repository.Query("UPDATE Document d SET d.reviewer = null WHERE d.reviewer = :reviewer")
     void clearReviewer(com.translationapp.model.User reviewer);
 }

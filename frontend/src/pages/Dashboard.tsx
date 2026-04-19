@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 import api from '../api/axios';
 import './Dashboard.css';
+import Modal from '../components/Modal';
 
 interface UserInfo {
   id: string;
@@ -31,6 +32,10 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [docToDelete, setDocToDelete] = useState<Document | null>(null);
+
   const fetchDocuments = async () => {
     try {
       setLoading(true);
@@ -49,14 +54,21 @@ const Dashboard: React.FC = () => {
     fetchDocuments();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Möchten Sie dieses Dokument wirklich löschen?')) return;
-    
+  const handleDeleteClick = (doc: Document) => {
+    setDocToDelete(doc);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!docToDelete) return;
     try {
-      await api.delete(`/documents/${id}`);
-      setDocuments(documents.filter(doc => doc.id !== id));
+      await api.delete(`/documents/${docToDelete.id}`);
+      setDocuments(documents.filter(doc => doc.id !== docToDelete.id));
+      setDeleteModalOpen(false);
+      setDocToDelete(null);
     } catch (err) {
       alert('Löschen fehlgeschlagen');
+      setDeleteModalOpen(false);
     }
   };
 
@@ -94,6 +106,16 @@ const Dashboard: React.FC = () => {
           </Link>
         )}
       </div>
+
+      <Modal 
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Dokument löschen"
+        message={`Möchten Sie das Dokument "${docToDelete?.title}" wirklich unwiderruflich löschen?`}
+        confirmText="Löschen"
+        type="danger"
+      />
 
       {user?.role === 'ADMIN' && (
         <div className="dashboard-controls">
@@ -165,7 +187,7 @@ const Dashboard: React.FC = () => {
                       </Link>
                       {(user?.role === 'ADMIN' || (user?.role === 'USER' && doc.creator.id === user.id)) && (
                         <button 
-                          onClick={() => handleDelete(doc.id)} 
+                          onClick={() => handleDeleteClick(doc)} 
                           className="btn-icon btn-delete" 
                           title="Löschen"
                         >
