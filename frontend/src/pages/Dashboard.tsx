@@ -136,7 +136,9 @@ const Dashboard: React.FC = () => {
                 const diffDays = diffTime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : null;
 
                 let rowClass = '';
-                if (deadlineDate && doc.status !== 'BESTAETIGT') {
+                if (doc.status === 'ERLEDIGT') {
+                  rowClass = 'row-completed';
+                } else if (deadlineDate) {
                   if (diffTime! < 0) rowClass = 'row-deadline-expired';
                   else if (diffDays! < 7) rowClass = 'row-deadline-warning';
                 }

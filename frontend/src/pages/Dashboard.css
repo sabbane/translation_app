@@ -151,3 +151,11 @@
   color: var(--error) !important;
   background-color: hsla(0, 84%, 60%, 0.1) !important;
 }
+
+.row-completed {
+  background-color: rgba(16, 185, 129, 0.05) !important;
+}
+.row-completed td {
+  color: #059669 !important;
+  font-weight: 500;
+}
