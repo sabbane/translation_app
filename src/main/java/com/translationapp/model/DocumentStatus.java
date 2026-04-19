@@ -2,6 +2,7 @@ package com.translationapp.model;
 
 public enum DocumentStatus {
     OFFEN,
-    UEBERSETZT,
-    BESTAETIGT
+    IN_PRUEFUNG,
+    KORREKTUR,
+    ERLEDIGT
 }

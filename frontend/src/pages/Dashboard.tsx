@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { Pencil, Trash2, Plus } from 'lucide-react';
 import api from '../api/axios';
 import './Dashboard.css';
 
@@ -16,7 +17,7 @@ interface Document {
   translatedText: string;
   sourceLanguage: string;
   targetLanguage: string;
-  status: 'OFFEN' | 'UEBERSETZT' | 'BESTAETIGT';
+  status: 'OFFEN' | 'IN_PRUEFUNG' | 'KORREKTUR' | 'ERLEDIGT';
   creator: UserInfo;
   reviewer?: UserInfo;
   createdAt: string;
@@ -61,9 +62,10 @@ const Dashboard: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'OFFEN': return <span className="badge badge-open">Offen</span>;
-      case 'UEBERSETZT': return <span className="badge badge-translated">Übersetzt</span>;
-      case 'BESTAETIGT': return <span className="badge badge-confirmed">Bestätigt</span>;
+      case 'OFFEN': return <span className="badge badge-draft">Entwurf</span>;
+      case 'IN_PRUEFUNG': return <span className="badge badge-review">In Prüfung</span>;
+      case 'KORREKTUR': return <span className="badge badge-correction">Korrektur</span>;
+      case 'ERLEDIGT': return <span className="badge badge-completed">Fertig</span>;
       default: return <span className="badge">{status}</span>;
     }
   };
@@ -88,7 +90,7 @@ const Dashboard: React.FC = () => {
              user?.role === 'REVIEWER' ? 'Reviewer Dashboard' : 'Meine Dokumente'}</h1>
         {user?.role === 'USER' && (
           <Link to="/editor" className="btn btn-primary">
-            Neues Dokument
+            <Plus size={20} /> Neues Dokument
           </Link>
         )}
       </div>
@@ -157,7 +159,7 @@ const Dashboard: React.FC = () => {
                   <td>
                     <div className="action-buttons">
                       <Link to={`/editor/${doc.id}`} className="btn-icon" title="Ansehen/Bearbeiten">
-                        Bearbeiten
+                        <Pencil size={18} />
                       </Link>
                       {(user?.role === 'ADMIN' || (user?.role === 'USER' && doc.creator.id === user.id)) && (
                         <button 
@@ -165,7 +167,7 @@ const Dashboard: React.FC = () => {
                           className="btn-icon btn-delete" 
                           title="Löschen"
                         >
-                          Löschen
+                          <Trash2 size={18} />
                         </button>
                       )}
                     </div>

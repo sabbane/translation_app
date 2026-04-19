@@ -180,6 +180,33 @@ a {
   border-color: var(--text-muted);
 }
 
+.btn-success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: var(--error);
+  color: white;
+  box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.reviewer-actions {
+  display: flex;
+  gap: 12px;
+}
+
 /* Animated Badges */
 .badge {
   padding: 4px 12px;
@@ -191,22 +218,28 @@ a {
   align-items: center;
 }
 
-.badge-open { 
-  background: hsla(142, 70%, 45%, 0.1); 
-  color: #10b981; 
-  border: 1px solid hsla(142, 70%, 45%, 0.2);
+.badge-draft { 
+  background: hsla(215, 16%, 47%, 0.1); 
+  color: #64748b; 
+  border: 1px solid hsla(215, 16%, 47%, 0.2);
 }
 
-.badge-translated { 
+.badge-review { 
   background: hsla(45, 93%, 47%, 0.1); 
   color: #f59e0b; 
   border: 1px solid hsla(45, 93%, 47%, 0.2);
 }
 
-.badge-confirmed { 
-  background: hsla(222, 89%, 48%, 0.1); 
-  color: #2563eb; 
-  border: 1px solid hsla(222, 89%, 48%, 0.2);
+.badge-correction { 
+  background: hsla(0, 84%, 60%, 0.1); 
+  color: #ef4444; 
+  border: 1px solid hsla(0, 84%, 60%, 0.2);
+}
+
+.badge-completed { 
+  background: hsla(142, 70%, 45%, 0.1); 
+  color: #10b981; 
+  border: 1px solid hsla(142, 70%, 45%, 0.2);
 }
 
 /* Animations */

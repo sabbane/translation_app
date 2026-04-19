@@ -20,7 +20,7 @@ const EditorPage: React.FC = () => {
   const [translatedText, setTranslatedText] = useState('');
   const [sourceLang, setSourceLang] = useState('EN');
   const [targetLang, setTargetLang] = useState('DE');
-  const [status, setStatus] = useState('OFFEN');
+  const [status, setStatus] = useState<'OFFEN' | 'IN_PRUEFUNG' | 'KORREKTUR' | 'ERLEDIGT'>('OFFEN');
   
   const [reviewers, setReviewers] = useState<Reviewer[]>([]);
   const [selectedReviewerId, setSelectedReviewerId] = useState('');
@@ -131,8 +131,21 @@ const EditorPage: React.FC = () => {
     }
   };
 
-  const isReadOnly = (user?.role === 'USER' && status !== 'OFFEN') || 
-                     (user?.role === 'REVIEWER' && status === 'BESTAETIGT');
+  const handleUpdateStatus = async (newStatus: string) => {
+    try {
+      setLoading(true);
+      await api.post(`/documents/${id}/status?status=${newStatus}`);
+      alert(newStatus === 'ERLEDIGT' ? 'Dokument abgeschlossen!' : 'Korrektur angefordert!');
+      navigate('/');
+    } catch (err) {
+      setError('Status-Update fehlgeschlagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isReadOnly = (user?.role === 'USER' && status !== 'OFFEN' && status !== 'KORREKTUR') || 
+                     (user?.role === 'REVIEWER' && status === 'ERLEDIGT');
 
   if (loading && !originalText) return <div className="loading-screen">Lade...</div>;
 
@@ -161,12 +174,31 @@ const EditorPage: React.FC = () => {
             </button>
           )}
 
-          {user?.role === 'USER' && status === 'OFFEN' && id && (
+          {user?.role === 'USER' && (status === 'OFFEN' || status === 'KORREKTUR') && id && (
             <AssignmentModal 
               reviewers={reviewers} 
               onAssign={handleAssign} 
               loading={loading} 
             />
+          )}
+
+          {user?.role === 'REVIEWER' && status === 'IN_PRUEFUNG' && (
+            <div className="reviewer-actions">
+              <button 
+                onClick={() => handleUpdateStatus('KORREKTUR')} 
+                className="btn btn-danger" 
+                disabled={loading}
+              >
+                Nachbesserung anfordern
+              </button>
+              <button 
+                onClick={() => handleUpdateStatus('ERLEDIGT')} 
+                className="btn btn-success" 
+                disabled={loading}
+              >
+                Bestätigen & Abschließen
+              </button>
+            </div>
           )}
         </div>
       </div>

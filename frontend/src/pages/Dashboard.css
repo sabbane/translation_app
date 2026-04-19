@@ -128,3 +128,26 @@
   color: #d69e2e !important;
   font-weight: 600;
 }
+
+/* Overrides */
+.btn-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  color: var(--text-muted) !important;
+}
+.btn-icon:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background-color: var(--primary-soft) !important;
+  transform: translateY(-2px);
+}
+.btn-delete:hover {
+  border-color: var(--error) !important;
+  color: var(--error) !important;
+  background-color: hsla(0, 84%, 60%, 0.1) !important;
+}

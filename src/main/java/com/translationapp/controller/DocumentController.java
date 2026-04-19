@@ -17,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -105,8 +104,10 @@ public class DocumentController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
-        // If status is translated or confirmed, user cannot edit anymore (unless admin or reviewer)
-        if (currentUser.getRole() == Role.USER && document.getStatus() != DocumentStatus.OFFEN) {
+        // If status is in review or completed, user cannot edit anymore (unless in correction or admin/reviewer)
+        if (currentUser.getRole() == Role.USER && 
+            document.getStatus() != DocumentStatus.OFFEN && 
+            document.getStatus() != DocumentStatus.KORREKTUR) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Document is in review and cannot be edited by user");
         }
 
@@ -143,7 +144,7 @@ public class DocumentController {
 
         document.setReviewer(reviewer);
         document.setReviewDeadline(deadline);
-        document.setStatus(DocumentStatus.UEBERSETZT); // Status changes to translated when submitted for review
+        document.setStatus(DocumentStatus.IN_PRUEFUNG); // Status changes to in review when submitted for review
         
         return ResponseEntity.ok(documentRepository.save(document));
     }
@@ -155,7 +156,7 @@ public class DocumentController {
 
         User currentUser = getCurrentUser();
         
-        // Reviewer can set to BESTAETIGT
+        // Reviewer can set to ERLEDIGT or KORREKTUR
         if (currentUser.getRole() == Role.REVIEWER) {
             if (document.getReviewer() == null || !document.getReviewer().getId().equals(currentUser.getId())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not assigned to this reviewer");
