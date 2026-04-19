@@ -163,12 +163,13 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> deleteDocument(@PathVariable UUID id) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         User currentUser = getCurrentUser();
-        
+
         if (currentUser.getRole() == Role.ADMIN) {
             documentRepository.delete(document);
         } else if (currentUser.getRole() == Role.USER && document.getCreator().getId().equals(currentUser.getId())) {
