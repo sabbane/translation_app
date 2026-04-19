@@ -36,6 +36,16 @@ const EditorPage: React.FC = () => {
     }
   }, [id, user]);
 
+  useEffect(() => {
+    if (isReadOnly || !originalText || originalText.length < 3) return;
+
+    const delayDebounceFn = setTimeout(() => {
+      handleAutoTranslate();
+    }, 800); // 800ms debounce
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [originalText, sourceLang, targetLang]);
+
   const fetchReviewers = async () => {
     try {
       const response = await api.get('/documents/reviewers');
@@ -89,10 +99,7 @@ const EditorPage: React.FC = () => {
   };
 
   const handleAutoTranslate = async () => {
-    if (!originalText) {
-      alert('Please enter some text first');
-      return;
-    }
+    if (!originalText || originalText.length < 2) return;
     try {
       setTranslating(true);
       const response = await api.post('/translation/auto', {
@@ -102,7 +109,8 @@ const EditorPage: React.FC = () => {
       });
       setTranslatedText(response.data.translatedText);
     } catch (err) {
-      alert('Auto-translation failed. Please check if your DeepL API key is configured in the backend.');
+      console.error('Auto-translation error:', err);
+      // We don't alert during live typing to avoid annoying the user
     } finally {
       setTranslating(false);
     }
@@ -180,14 +188,10 @@ const EditorPage: React.FC = () => {
           </select>
         </div>
         
-        {user?.role === 'USER' && !isReadOnly && (
-          <button 
-            onClick={handleAutoTranslate} 
-            className="btn btn-auto-translate" 
-            disabled={translating || !originalText}
-          >
-            <Wand2 size={18} /> {translating ? 'Translating...' : 'Auto-Translate (DeepL)'}
-          </button>
+        {translating && (
+          <div className="translation-status">
+            <Wand2 size={16} className="spinning" /> Live-Translating...
+          </div>
         )}
       </div>
 
@@ -195,6 +199,7 @@ const EditorPage: React.FC = () => {
         <div className="editor-pane card">
           <label>Original Text ({sourceLang})</label>
           <textarea
+            className="text-area"
             value={originalText}
             onChange={(e) => setOriginalText(e.target.value)}
             placeholder="Enter text to translate..."
@@ -204,6 +209,7 @@ const EditorPage: React.FC = () => {
         <div className="editor-pane card">
           <label>Translation ({targetLang})</label>
           <textarea
+            className="text-area"
             value={translatedText}
             onChange={(e) => setTranslatedText(e.target.value)}
             placeholder="Translation will appear here..."
