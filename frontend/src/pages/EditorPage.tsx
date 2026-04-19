@@ -51,7 +51,7 @@ const EditorPage: React.FC = () => {
       const response = await api.get('/documents/reviewers');
       setReviewers(response.data);
     } catch (err) {
-      console.error('Failed to load reviewers');
+      console.error('Laden der Reviewer fehlgeschlagen');
     }
   };
 
@@ -67,7 +67,7 @@ const EditorPage: React.FC = () => {
       setStatus(doc.status);
       if (doc.reviewer) setSelectedReviewerId(doc.reviewer.id);
     } catch (err) {
-      setError('Failed to load document');
+      setError('Dokument konnte nicht geladen werden');
     } finally {
       setLoading(false);
     }
@@ -85,14 +85,14 @@ const EditorPage: React.FC = () => {
 
       if (id) {
         await api.put(`/documents/${id}`, docData);
-        alert('Document updated!');
+        alert('Dokument aktualisiert!');
       } else {
         const response = await api.post('/documents', docData);
-        alert('Document created!');
+        alert('Dokument erstellt!');
         navigate(`/editor/${response.data.id}`);
       }
     } catch (err) {
-      setError('Failed to save document');
+      setError('Speichern fehlgeschlagen');
     } finally {
       setLoading(false);
     }
@@ -109,8 +109,7 @@ const EditorPage: React.FC = () => {
       });
       setTranslatedText(response.data.translatedText);
     } catch (err) {
-      console.error('Auto-translation error:', err);
-      // We don't alert during live typing to avoid annoying the user
+      console.error('Übersetzungsfehler:', err);
     } finally {
       setTranslating(false);
     }
@@ -118,16 +117,16 @@ const EditorPage: React.FC = () => {
 
   const handleAssign = async () => {
     if (!selectedReviewerId) {
-      alert('Please select a reviewer');
+      alert('Bitte wählen Sie einen Reviewer aus');
       return;
     }
     try {
       setLoading(true);
       await api.post(`/documents/${id}/assign?reviewerId=${selectedReviewerId}`);
-      alert('Submitted for review!');
+      alert('Zur Überprüfung eingereicht!');
       navigate('/');
     } catch (err) {
-      setError('Failed to assign reviewer');
+      setError('Zuweisung fehlgeschlagen');
     } finally {
       setLoading(false);
     }
@@ -136,7 +135,7 @@ const EditorPage: React.FC = () => {
   const isReadOnly = (user?.role === 'USER' && status !== 'OFFEN') || 
                      (user?.role === 'REVIEWER' && status === 'BESTAETIGT');
 
-  if (loading && !originalText) return <div className="loading-screen">Loading...</div>;
+  if (loading && !originalText) return <div className="loading-screen">Lade...</div>;
 
   return (
     <div className="editor-container">
@@ -149,7 +148,7 @@ const EditorPage: React.FC = () => {
         <div className="editor-actions">
           {!isReadOnly && (
             <button onClick={handleSave} className="btn btn-secondary" disabled={loading}>
-              <Save size={18} /> Save
+              <Save size={18} /> Speichern
             </button>
           )}
 
@@ -160,13 +159,13 @@ const EditorPage: React.FC = () => {
                 onChange={(e) => setSelectedReviewerId(e.target.value)}
                 className="reviewer-select"
               >
-                <option value="">Select Reviewer...</option>
+                <option value="">Reviewer wählen...</option>
                 {reviewers.map(r => (
                   <option key={r.id} value={r.id}>{r.username}</option>
                 ))}
               </select>
               <button onClick={handleAssign} className="btn btn-primary" disabled={loading || !selectedReviewerId}>
-                <Send size={18} /> Submit for Review
+                <Send size={18} /> Zur Review einreichen
               </button>
             </div>
           )}
@@ -176,43 +175,43 @@ const EditorPage: React.FC = () => {
       <div className="language-bar card">
         <div className="lang-selectors">
           <select value={sourceLang} onChange={(e) => setSourceLang(e.target.value)} disabled={isReadOnly}>
-            <option value="EN">English</option>
-            <option value="DE">German</option>
-            <option value="FR">French</option>
+            <option value="EN">Englisch</option>
+            <option value="DE">Deutsch</option>
+            <option value="FR">Französisch</option>
           </select>
           <Languages size={20} className="lang-icon" />
           <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} disabled={isReadOnly}>
-            <option value="DE">German</option>
-            <option value="EN">English</option>
-            <option value="FR">French</option>
+            <option value="DE">Deutsch</option>
+            <option value="EN">Englisch</option>
+            <option value="FR">Französisch</option>
           </select>
         </div>
         
         {translating && (
           <div className="translation-status">
-            <Wand2 size={16} className="spinning" /> Live-Translating...
+            <Wand2 size={16} className="spinning" /> Live-Übersetzung...
           </div>
         )}
       </div>
 
       <div className="split-editor">
         <div className="editor-pane card">
-          <label>Original Text ({sourceLang})</label>
+          <label>Originaltext ({sourceLang})</label>
           <textarea
             className="text-area"
             value={originalText}
             onChange={(e) => setOriginalText(e.target.value)}
-            placeholder="Enter text to translate..."
+            placeholder="Text zum Übersetzen eingeben..."
             readOnly={isReadOnly}
           />
         </div>
         <div className="editor-pane card">
-          <label>Translation ({targetLang})</label>
+          <label>Übersetzung ({targetLang})</label>
           <textarea
             className="text-area"
             value={translatedText}
             onChange={(e) => setTranslatedText(e.target.value)}
-            placeholder="Translation will appear here..."
+            placeholder="Die Übersetzung erscheint hier..."
             readOnly={isReadOnly}
           />
         </div>

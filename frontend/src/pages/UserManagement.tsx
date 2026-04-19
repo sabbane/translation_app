@@ -29,7 +29,7 @@ const UserManagement: React.FC = () => {
       setUsers(response.data);
       setError('');
     } catch (err: any) {
-      setError('Failed to load users.');
+      setError('Benutzer konnten nicht geladen werden.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -65,7 +65,7 @@ const UserManagement: React.FC = () => {
       fetchUsers();
       resetForm();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save user.');
+      setError(err.response?.data?.message || 'Benutzer konnte nicht gespeichert werden.');
     }
   };
 
@@ -80,13 +80,13 @@ const UserManagement: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm('Möchten Sie diesen Benutzer wirklich löschen?')) return;
     try {
       await api.delete(`/users/${id}`);
       setUsers(users.filter(u => u.id !== id));
     } catch (err: any) {
-      console.error('Delete error:', err.response?.data || err.message);
-      setError('Failed to delete user.');
+      console.error('Löschfehler:', err.response?.data || err.message);
+      setError('Benutzer konnte nicht gelöscht werden.');
     }
   };
 
@@ -107,9 +107,9 @@ const UserManagement: React.FC = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>User Management</h1>
+        <h1>Benutzerverwaltung</h1>
         <button className="btn btn-primary" onClick={toggleForm}>
-          {showForm ? 'Cancel' : 'Add New User'}
+          {showForm ? 'Abbrechen' : 'Neuen Benutzer anlegen'}
         </button>
       </div>
 
@@ -117,10 +117,10 @@ const UserManagement: React.FC = () => {
 
       {showForm && (
         <div className="card form-card">
-          <h2>{editingUserId ? 'Edit User' : 'Create New User'}</h2>
+          <h2>{editingUserId ? 'Benutzer bearbeiten' : 'Neuen Benutzer erstellen'}</h2>
           <form onSubmit={handleSubmit} className="user-form">
             <div className="form-group">
-              <label>Username</label>
+              <label>Benutzername</label>
               <input
                 type="text"
                 name="username"
@@ -130,7 +130,7 @@ const UserManagement: React.FC = () => {
               />
             </div>
             <div className="form-group">
-              <label>Password {editingUserId && '(Leave blank to keep current)'}</label>
+              <label>Passwort {editingUserId && '(Leer lassen für keine Änderung)'}</label>
               <input
                 type="password"
                 name="password"
@@ -140,20 +140,20 @@ const UserManagement: React.FC = () => {
               />
             </div>
             <div className="form-group">
-              <label>Role</label>
+              <label>Rolle</label>
               <select
                 name="role"
                 value={formData.role}
                 onChange={handleInputChange}
               >
-                <option value="USER">User</option>
+                <option value="USER">Benutzer</option>
                 <option value="REVIEWER">Reviewer</option>
-                <option value="ADMIN">Admin</option>
+                <option value="ADMIN">Administrator</option>
               </select>
             </div>
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">
-                {editingUserId ? 'Update User' : 'Create User'}
+                {editingUserId ? 'Benutzer aktualisieren' : 'Benutzer erstellen'}
               </button>
             </div>
           </form>
@@ -162,17 +162,17 @@ const UserManagement: React.FC = () => {
 
       <div className="data-table-container">
         {loading ? (
-          <div className="loading">Loading users...</div>
+          <div className="loading">Lade Benutzer...</div>
         ) : users.length === 0 ? (
-          <div className="empty-state">No users found.</div>
+          <div className="empty-state">Keine Benutzer gefunden.</div>
         ) : (
           <table className="data-table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Username</th>
-                <th>Role</th>
-                <th>Actions</th>
+                <th>Benutzername</th>
+                <th>Rolle</th>
+                <th>Aktionen</th>
               </tr>
             </thead>
             <tbody>
@@ -182,7 +182,8 @@ const UserManagement: React.FC = () => {
                   <td style={{ fontWeight: 600 }}>{u.username}</td>
                   <td>
                     <span className={`role-badge role-${u.role.toLowerCase()}`}>
-                      {u.role}
+                      {u.role === 'ADMIN' ? 'Administrator' : 
+                       u.role === 'REVIEWER' ? 'Reviewer' : 'Benutzer'}
                     </span>
                   </td>
                   <td>
@@ -190,16 +191,16 @@ const UserManagement: React.FC = () => {
                       <button 
                         onClick={() => handleEdit(u)} 
                         className="btn-icon" 
-                        title="Edit"
+                        title="Bearbeiten"
                       >
-                        Edit
+                        Bearbeiten
                       </button>
                       <button 
                         onClick={() => handleDelete(u.id)} 
                         className="btn-icon btn-delete" 
-                        title="Delete"
+                        title="Löschen"
                       >
-                        Delete
+                        Löschen
                       </button>
                     </div>
                   </td>

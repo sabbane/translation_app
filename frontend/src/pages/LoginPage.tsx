@@ -29,10 +29,10 @@ const LoginPage: React.FC = () => {
       } else {
         await api.post('/auth/signup', { username, password, role });
         setIsLogin(true);
-        setError('Signup successful! Please login.');
+        setError('Registrierung erfolgreich! Bitte loggen Sie sich ein.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Authentication failed');
+      setError(err.response?.data?.message || 'Authentifizierung fehlgeschlagen');
     } finally {
       setLoading(false);
     }
@@ -41,59 +41,59 @@ const LoginPage: React.FC = () => {
   return (
     <div className="login-container">
       <div className="login-card card">
-        <h1>{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-        <p>{isLogin ? 'Please login to your account' : 'Sign up for a new account'}</p>
+        <h1>{isLogin ? 'Willkommen zurück' : 'Account erstellen'}</h1>
+        <p>{isLogin ? 'Bitte loggen Sie sich in Ihren Account ein' : 'Registrieren Sie einen neuen Account'}</p>
         
-        {error && <div className={`alert ${error.includes('successful') ? 'alert-success' : 'alert-error'}`}>{error}</div>}
+        {error && <div className={`alert ${error.includes('erfolgreich') ? 'alert-success' : 'alert-error'}`}>{error}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Benutzername</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder="Benutzername eingeben"
               required
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Passwort</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Passwort eingeben"
               required
             />
           </div>
 
           {!isLogin && (
             <div className="form-group">
-              <label htmlFor="role">Role</label>
+              <label htmlFor="role">Rolle</label>
               <select
                 id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
               >
-                <option value="USER">User</option>
+                <option value="USER">Benutzer</option>
                 <option value="REVIEWER">Reviewer</option>
-                <option value="ADMIN">Admin</option>
+                <option value="ADMIN">Administrator</option>
               </select>
             </div>
           )}
 
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Processing...' : (isLogin ? 'Login' : 'Sign Up')}
+            {loading ? 'Wird verarbeitet...' : (isLogin ? 'Anmelden' : 'Registrieren')}
           </button>
         </form>
 
         <div className="login-footer">
           <button onClick={() => setIsLogin(!isLogin)} className="btn-link">
-            {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}
+            {isLogin ? "Noch keinen Account? Registrieren" : "Bereits einen Account? Anmelden"}
           </button>
         </div>
       </div>

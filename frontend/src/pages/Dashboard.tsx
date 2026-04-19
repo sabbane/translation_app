@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
       // Spring Data Page object returns content in the 'content' field
       setDocuments(response.data.content || []);
     } catch (err: any) {
-      setError('Failed to load documents');
+      setError('Dokumente konnten nicht geladen werden');
       console.error(err);
     } finally {
       setLoading(false);
@@ -47,13 +47,13 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this document?')) return;
+    if (!window.confirm('Möchten Sie dieses Dokument wirklich löschen?')) return;
     
     try {
       await api.delete(`/documents/${id}`);
       setDocuments(documents.filter(doc => doc.id !== id));
     } catch (err) {
-      alert('Failed to delete document');
+      alert('Löschen fehlgeschlagen');
     }
   };
 
@@ -82,11 +82,11 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>{user?.role === 'ADMIN' ? 'Admin Dashboard' : 
-             user?.role === 'REVIEWER' ? 'Reviewer Dashboard' : 'My Documents'}</h1>
+        <h1>{user?.role === 'ADMIN' ? 'Administrator Dashboard' : 
+             user?.role === 'REVIEWER' ? 'Reviewer Dashboard' : 'Meine Dokumente'}</h1>
         {user?.role === 'USER' && (
           <Link to="/editor" className="btn btn-primary">
-            New Document
+            Neues Dokument
           </Link>
         )}
       </div>
@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
         <div className="dashboard-controls">
           <input 
             type="text" 
-            placeholder="Search documents by text, language, or username..." 
+            placeholder="Dokumente suchen nach Text, Sprache oder Benutzername..." 
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="search-input"
@@ -107,20 +107,20 @@ const Dashboard: React.FC = () => {
 
       <div className="data-table-container">
         {loading ? (
-          <div className="loading">Loading documents...</div>
+          <div className="loading">Lade Dokumente...</div>
         ) : filteredDocuments.length === 0 ? (
-          <div className="empty-state">No documents found.</div>
+          <div className="empty-state">Keine Dokumente gefunden.</div>
         ) : (
           <table className="data-table">
             <thead>
               <tr>
-                <th>Text Snippet</th>
-                <th>Languages</th>
+                <th>Vorschau</th>
+                <th>Sprachen</th>
                 <th>Status</th>
-                {user?.role === 'ADMIN' && <th>Creator</th>}
+                {user?.role === 'ADMIN' && <th>Ersteller</th>}
                 <th>Reviewer</th>
-                <th>Date</th>
-                <th>Actions</th>
+                <th>Datum</th>
+                <th>Aktionen</th>
               </tr>
             </thead>
             <tbody>
@@ -140,16 +140,16 @@ const Dashboard: React.FC = () => {
                   <td>{new Date(doc.createdAt).toLocaleDateString()}</td>
                   <td>
                     <div className="action-buttons">
-                      <Link to={`/editor/${doc.id}`} className="btn-icon" title="Edit">
-                        View/Edit
+                      <Link to={`/editor/${doc.id}`} className="btn-icon" title="Ansehen/Bearbeiten">
+                        Bearbeiten
                       </Link>
                       {(user?.role === 'ADMIN' || (user?.role === 'USER' && doc.creator.id === user.id)) && (
                         <button 
                           onClick={() => handleDelete(doc.id)} 
                           className="btn-icon btn-delete" 
-                          title="Delete"
+                          title="Löschen"
                         >
-                          Delete
+                          Löschen
                         </button>
                       )}
                     </div>

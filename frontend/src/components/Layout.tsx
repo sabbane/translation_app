@@ -24,17 +24,20 @@ const Layout: React.FC = () => {
             <Link to="/">Dashboard</Link>
             <Link to="/editor">Editor</Link>
             {user?.role === 'ADMIN' && (
-              <Link to="/users">User Management</Link>
+              <Link to="/users">Benutzerverwaltung</Link>
             )}
           </div>
           {user && (
             <div className="user-menu">
               <div className="user-info">
                 <span className="username">{user.username}</span>
-                <span className={`role-tag role-${user.role.toLowerCase()}`}>{user.role}</span>
+                <span className={`role-tag role-${user.role.toLowerCase()}`}>
+                  {user.role === 'ADMIN' ? 'Administrator' : 
+                   user.role === 'REVIEWER' ? 'Reviewer' : 'Benutzer'}
+                </span>
               </div>
               <button onClick={handleLogout} className="btn-logout">
-                Logout
+                Abmelden
               </button>
             </div>
           )}
@@ -45,7 +48,7 @@ const Layout: React.FC = () => {
       </main>
       <footer className="footer">
         <div className="container">
-          <p>&copy; 2025 Translation App. Built with React & Spring Boot.</p>
+          <p>&copy; 2025 Translation App. Erstellt mit React & Spring Boot.</p>
         </div>
       </footer>
     </div>
