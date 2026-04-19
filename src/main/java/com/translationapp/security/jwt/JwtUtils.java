@@ -40,10 +40,9 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
+            Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Hier Loggen (z.B. SLF4J)
             System.err.println("Invalid JWT: " + e.getMessage());
         }
         return false;

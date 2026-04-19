@@ -64,7 +64,7 @@ public class DocumentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Document> createDocument(@RequestBody Document document) {
         User currentUser = getCurrentUser();
         document.setCreator(currentUser);
@@ -117,7 +117,7 @@ public class DocumentController {
     }
 
     @PostMapping("/{id}/assign")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Document> assignReviewer(@PathVariable UUID id, @RequestParam UUID reviewerId) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
