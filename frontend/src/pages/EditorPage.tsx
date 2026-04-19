@@ -143,6 +143,16 @@ const EditorPage: React.FC = () => {
       setLoading(false);
     }
   };
+  
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'OFFEN': return <span className="badge badge-draft">Entwurf</span>;
+      case 'IN_PRUEFUNG': return <span className="badge badge-review">In Prüfung</span>;
+      case 'KORREKTUR': return <span className="badge badge-correction">Korrektur</span>;
+      case 'ERLEDIGT': return <span className="badge badge-completed">Fertig</span>;
+      default: return <span className="badge">{status}</span>;
+    }
+  };
 
   const isReadOnly = (user?.role === 'USER' && status !== 'OFFEN' && status !== 'KORREKTUR') || 
                      (user?.role === 'REVIEWER' && status === 'ERLEDIGT');
@@ -164,6 +174,7 @@ const EditorPage: React.FC = () => {
             onChange={(e) => setTitle(e.target.value)}
             disabled={isReadOnly}
           />
+          {id && <div className="editor-status-badge">{getStatusBadge(status)}</div>}
         </div>
         {error && <div className="alert alert-error" style={{margin: '0 1rem', padding: '0.5rem', flex: 1}}>{error}</div>}
         

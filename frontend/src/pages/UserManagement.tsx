@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
+import { Pencil, Trash2, UserPlus } from 'lucide-react';
 import './UserManagement.css';
 
 interface User {
@@ -109,7 +110,7 @@ const UserManagement: React.FC = () => {
       <div className="dashboard-header">
         <h1>Benutzerverwaltung</h1>
         <button className="btn btn-primary" onClick={toggleForm}>
-          {showForm ? 'Abbrechen' : 'Neuen Benutzer anlegen'}
+          {showForm ? 'Abbrechen' : <><UserPlus size={18} /> Neuen Benutzer anlegen</>}
         </button>
       </div>
 
@@ -169,7 +170,6 @@ const UserManagement: React.FC = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Benutzername</th>
                 <th>Rolle</th>
                 <th>Aktionen</th>
@@ -178,7 +178,6 @@ const UserManagement: React.FC = () => {
             <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{u.id.substring(0, 8)}...</td>
                   <td style={{ fontWeight: 600 }}>{u.username}</td>
                   <td>
                     <span className={`role-badge role-${u.role.toLowerCase()}`}>
@@ -193,14 +192,14 @@ const UserManagement: React.FC = () => {
                         className="btn-icon" 
                         title="Bearbeiten"
                       >
-                        Bearbeiten
+                        <Pencil size={18} />
                       </button>
                       <button 
                         onClick={() => handleDelete(u.id)} 
                         className="btn-icon btn-delete" 
                         title="Löschen"
                       >
-                        Löschen
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </td>

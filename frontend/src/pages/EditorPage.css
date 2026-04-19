@@ -17,15 +17,16 @@
   flex: 1;
   display: flex;
   justify-content: center;
+  position: relative;
+  max-width: 500px;
 }
 
 .editor-title-input {
   width: 100%;
-  max-width: 500px;
   background: var(--surface-solid);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 10px 20px;
+  padding: 10px 100px 10px 20px;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-main);
@@ -39,26 +40,6 @@
   box-shadow: var(--shadow-md);
   background: var(--background);
 }
-
-.editor-header h1 {
-  font-size: 1.75rem;
-  font-weight: 800;
-}
-
-.editor-actions {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.submit-section {
-  display: flex;
-  gap: 12px;
-  padding-left: 16px;
-  border-left: 2px solid var(--border);
-}
-
-.language-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -275,4 +256,13 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: 12px;
+}
+
+.editor-status-badge {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0.8;
 }

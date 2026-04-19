@@ -76,41 +76,12 @@
   white-space: nowrap;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-icon {
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  background-color: var(--surface-solid);
-  border: 1px solid var(--border);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-main);
-  transition: var(--transition);
-}
-
-.btn-icon:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateY(-1px);
-}
-
-.btn-delete:hover {
-  border-color: var(--error);
-  color: var(--error);
-  background-color: hsla(0, 84%, 60%, 0.1);
-}
-
 .loading, .empty-state {
   text-align: center;
   padding: 64px;
   color: var(--text-muted);
   font-weight: 500;
 }
-
 
 /* Deadline Highlighting */
 .row-deadline-expired {
@@ -127,29 +98,6 @@
 .row-deadline-warning td {
   color: #d69e2e !important;
   font-weight: 600;
-}
-
-/* Overrides */
-.btn-icon {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 38px !important;
-  height: 38px !important;
-  padding: 0 !important;
-  border-radius: 10px !important;
-  color: var(--text-muted) !important;
-}
-.btn-icon:hover {
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-  background-color: var(--primary-soft) !important;
-  transform: translateY(-2px);
-}
-.btn-delete:hover {
-  border-color: var(--error) !important;
-  color: var(--error) !important;
-  background-color: hsla(0, 84%, 60%, 0.1) !important;
 }
 
 .row-completed {

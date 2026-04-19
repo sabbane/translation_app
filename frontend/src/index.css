@@ -252,3 +252,36 @@ a {
   animation: fadeIn 0.5s ease forwards;
 }
 
+/* Icon Buttons */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.btn-icon:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-icon.btn-delete:hover {
+  background: hsla(0, 84%, 60%, 0.1);
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
