@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
-import { Languages, Send, Save, Wand2, ChevronLeft } from 'lucide-react';
+import { Languages, Send, Save, Wand2, ChevronLeft, Lock } from 'lucide-react';
 import './EditorPage.css';
 
 interface Reviewer {
@@ -154,7 +154,8 @@ const EditorPage: React.FC = () => {
     }
   };
 
-  const isReadOnly = (user?.role === 'USER' && status !== 'OFFEN' && status !== 'KORREKTUR') || 
+  const isReadOnly = user?.role === 'ADMIN' || 
+                     (user?.role === 'USER' && status !== 'OFFEN' && status !== 'KORREKTUR') || 
                      (user?.role === 'REVIEWER' && status === 'ERLEDIGT');
 
   if (loading && !originalText) return <div className="loading-screen">Lade...</div>;
@@ -165,6 +166,11 @@ const EditorPage: React.FC = () => {
         <button onClick={() => navigate('/')} className="btn-back">
           <ChevronLeft size={20} /> Dashboard
         </button>
+        {isReadOnly && (
+          <div className="readonly-banner">
+            <Lock size={16} /> Nur Lese-Modus
+          </div>
+        )}
         <div className="title-input-container">
           <input 
             type="text" 

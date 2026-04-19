@@ -63,7 +63,7 @@ public class DocumentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Document> createDocument(@RequestBody Document document) {
         User currentUser = getCurrentUser();
         document.setCreator(currentUser);
@@ -97,9 +97,12 @@ public class DocumentController {
 
         User currentUser = getCurrentUser();
         
-        // Only creator or admin can update the text, reviewer can edit if assigned
-        if (currentUser.getRole() != Role.ADMIN && 
-            !document.getCreator().getId().equals(currentUser.getId()) && 
+        // Only creator or assigned reviewer can update the text. Admin is read-only.
+        if (currentUser.getRole() == Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admins have read-only access to document content");
+        }
+        
+        if (!document.getCreator().getId().equals(currentUser.getId()) && 
             (document.getReviewer() == null || !document.getReviewer().getId().equals(currentUser.getId()))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
@@ -122,7 +125,7 @@ public class DocumentController {
     }
 
     @PostMapping("/{id}/assign")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Document> assignReviewer(
             @PathVariable UUID id, 
             @RequestParam UUID reviewerId,
@@ -131,8 +134,11 @@ public class DocumentController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         User currentUser = getCurrentUser();
-        if (currentUser.getRole() != Role.ADMIN && !document.getCreator().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only creator or admin can assign reviewer");
+        if (currentUser.getRole() == Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admins cannot assign reviewers");
+        }
+        if (!document.getCreator().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only creator can assign reviewer");
         }
 
         User reviewer = userRepository.findById(reviewerId)
@@ -161,8 +167,6 @@ public class DocumentController {
             if (document.getReviewer() == null || !document.getReviewer().getId().equals(currentUser.getId())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not assigned to this reviewer");
             }
-            document.setStatus(status);
-        } else if (currentUser.getRole() == Role.ADMIN) {
             document.setStatus(status);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
