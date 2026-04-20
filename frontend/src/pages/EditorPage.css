@@ -40,6 +40,8 @@
   box-shadow: var(--shadow-md);
   background: var(--background);
 }
+
+.language-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -96,13 +98,19 @@
   margin-bottom: 8px;
 }
 
-.pane-header h3 {
+.pane-header h3, .pane-header label {
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0;
+}
+
+.pane-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .text-area {

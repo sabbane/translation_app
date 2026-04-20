@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Pencil, Trash2, Plus, LayoutGrid, List, FileText, CheckCircle2, Clock, AlertCircle, Calendar } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 import './Dashboard.css';
 import Modal from '../components/Modal';
@@ -27,6 +28,7 @@ interface Document {
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const { addToast } = useToast();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -69,8 +71,9 @@ const Dashboard: React.FC = () => {
       setDocuments(documents.filter(doc => doc.id !== docToDelete.id));
       setDeleteModalOpen(false);
       setDocToDelete(null);
+      addToast('Dokument erfolgreich gelöscht', 'success');
     } catch (err) {
-      alert('Löschen fehlgeschlagen');
+      addToast('Löschen fehlgeschlagen', 'error');
       setDeleteModalOpen(false);
     }
   };

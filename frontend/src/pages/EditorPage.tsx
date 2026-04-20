@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
-import { Languages, Send, Save, Wand2, ChevronLeft, Lock } from 'lucide-react';
+import { Languages, Send, Save, Wand2, ChevronLeft, Lock, Upload, Download } from 'lucide-react';
+import * as mammoth from 'mammoth';
+import { Document as DocxDocument, Packer, Paragraph, TextRun } from 'docx';
 import './EditorPage.css';
 
 interface Reviewer {
@@ -14,6 +17,7 @@ const EditorPage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { addToast } = useToast();
 
   const [title, setTitle] = useState('');
   const [originalText, setOriginalText] = useState('');
@@ -27,6 +31,8 @@ const EditorPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [error, setError] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user?.role === 'USER') {
@@ -88,10 +94,10 @@ const EditorPage: React.FC = () => {
 
       if (id) {
         await api.put(`/documents/${id}`, docData);
-        alert('Dokument aktualisiert!');
+        addToast('Dokument aktualisiert!', 'success');
       } else {
         const response = await api.post('/documents', docData);
-        alert('Dokument erstellt!');
+        addToast('Dokument erstellt!', 'success');
         navigate(`/editor/${response.data.id}`);
       }
     } catch (err) {
@@ -118,11 +124,72 @@ const EditorPage: React.FC = () => {
     }
   };
 
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!title) {
+      setTitle(file.name.replace(/\.[^/.]+$/, ""));
+    }
+
+    try {
+      if (file.name.endsWith('.docx')) {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        setOriginalText(result.value);
+        addToast('DOCX erfolgreich importiert!', 'success');
+      } else if (file.name.endsWith('.txt')) {
+        const text = await file.text();
+        setOriginalText(text);
+        addToast('TXT erfolgreich importiert!', 'success');
+      } else {
+        addToast('Nicht unterstütztes Format', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      addToast('Fehler beim Lesen der Datei', 'error');
+    }
+    
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleExport = async () => {
+    if (!translatedText) {
+      addToast('Kein Text zum Exportieren vorhanden', 'error');
+      return;
+    }
+    
+    try {
+      const doc = new DocxDocument({
+        sections: [{
+          properties: {},
+          children: translatedText.split('\n').map(line => 
+            new Paragraph({
+              children: [new TextRun(line)]
+            })
+          ),
+        }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const element = document.createElement("a");
+      element.href = URL.createObjectURL(blob);
+      element.download = `${title || 'translation'}-exported.docx`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      addToast('DOCX erfolgreich exportiert!', 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Fehler beim Exportieren', 'error');
+    }
+  };
+
   const handleAssign = async (reviewerId: string, deadline: string) => {
     try {
       setLoading(true);
       await api.post(`/documents/${id}/assign?reviewerId=${reviewerId}&deadline=${deadline}`);
-      alert('Zur Überprüfung eingereicht!');
+      addToast('Zur Überprüfung eingereicht!', 'success');
       navigate('/');
     } catch (err) {
       setError('Zuweisung fehlgeschlagen');
@@ -135,7 +202,7 @@ const EditorPage: React.FC = () => {
     try {
       setLoading(true);
       await api.post(`/documents/${id}/status?status=${newStatus}`);
-      alert(newStatus === 'ERLEDIGT' ? 'Dokument abgeschlossen!' : 'Korrektur angefordert!');
+      addToast(newStatus === 'ERLEDIGT' ? 'Dokument abgeschlossen!' : 'Korrektur angefordert!', 'success');
       navigate('/');
     } catch (err) {
       setError('Status-Update fehlgeschlagen');
@@ -244,17 +311,51 @@ const EditorPage: React.FC = () => {
 
       <div className="split-editor">
         <div className="editor-pane card">
-          <label>Originaltext ({sourceLang})</label>
+          <div className="pane-header">
+            <label>Originaltext ({sourceLang})</label>
+            {!isReadOnly && (
+              <div className="pane-actions">
+                <input 
+                  type="file" 
+                  accept=".txt,.docx" 
+                  ref={fileInputRef} 
+                  onChange={handleImport} 
+                  style={{ display: 'none' }} 
+                />
+                <button 
+                  onClick={() => fileInputRef.current?.click()} 
+                  className="btn-small" 
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                  title="Textdatei importieren (.txt, .docx)"
+                >
+                  <Upload size={14} /> Import
+                </button>
+              </div>
+            )}
+          </div>
           <textarea
             className="text-area"
             value={originalText}
             onChange={(e) => setOriginalText(e.target.value)}
-            placeholder="Text zum Übersetzen eingeben..."
+            placeholder="Text zum Übersetzen eingeben oder Datei importieren..."
             readOnly={isReadOnly}
           />
         </div>
         <div className="editor-pane card">
-          <label>Übersetzung ({targetLang})</label>
+          <div className="pane-header">
+            <label>Übersetzung ({targetLang})</label>
+            <div className="pane-actions">
+              <button 
+                onClick={handleExport} 
+                className="btn-small" 
+                style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                disabled={!translatedText}
+                title="Als DOCX exportieren"
+              >
+                <Download size={14} /> Export
+              </button>
+            </div>
+          </div>
           <textarea
             className="text-area"
             value={translatedText}
@@ -281,9 +382,11 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
   const [days, setDays] = useState('14');
   const [date, setDate] = useState('');
 
+  const { addToast } = useToast();
+
   const handleSubmit = () => {
     if (!reviewerId) {
-      alert('Bitte Reviewer wählen');
+      addToast('Bitte Reviewer wählen', 'error');
       return;
     }
 
@@ -294,7 +397,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
       finalDeadline = d.toISOString();
     } else {
       if (!date) {
-        alert('Bitte Datum wählen');
+        addToast('Bitte Datum wählen', 'error');
         return;
       }
       finalDeadline = new Date(date).toISOString();
