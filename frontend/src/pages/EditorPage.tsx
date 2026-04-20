@@ -33,6 +33,7 @@ const EditorPage: React.FC = () => {
   const [error, setError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasUserEdited = useRef(false);
 
   useEffect(() => {
     if (user?.role === 'USER') {
@@ -45,6 +46,8 @@ const EditorPage: React.FC = () => {
 
   useEffect(() => {
     if (isReadOnly || !originalText || originalText.length < 3) return;
+
+    if (id && !hasUserEdited.current) return;
 
     const delayDebounceFn = setTimeout(() => {
       handleAutoTranslate();
@@ -137,10 +140,12 @@ const EditorPage: React.FC = () => {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
         setOriginalText(result.value);
+        hasUserEdited.current = true;
         addToast('DOCX erfolgreich importiert!', 'success');
       } else if (file.name.endsWith('.txt')) {
         const text = await file.text();
         setOriginalText(text);
+        hasUserEdited.current = true;
         addToast('TXT erfolgreich importiert!', 'success');
       } else {
         addToast('Nicht unterstütztes Format', 'error');
@@ -289,13 +294,19 @@ const EditorPage: React.FC = () => {
 
       <div className="language-bar card">
         <div className="lang-selectors">
-          <select value={sourceLang} onChange={(e) => setSourceLang(e.target.value)} disabled={isReadOnly}>
+          <select value={sourceLang} onChange={(e) => {
+            setSourceLang(e.target.value);
+            hasUserEdited.current = true;
+          }} disabled={isReadOnly}>
             <option value="EN">Englisch</option>
             <option value="DE">Deutsch</option>
             <option value="FR">Französisch</option>
           </select>
           <Languages size={20} className="lang-icon" />
-          <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} disabled={isReadOnly}>
+          <select value={targetLang} onChange={(e) => {
+            setTargetLang(e.target.value);
+            hasUserEdited.current = true;
+          }} disabled={isReadOnly}>
             <option value="DE">Deutsch</option>
             <option value="EN">Englisch</option>
             <option value="FR">Französisch</option>
@@ -336,7 +347,10 @@ const EditorPage: React.FC = () => {
           <textarea
             className="text-area"
             value={originalText}
-            onChange={(e) => setOriginalText(e.target.value)}
+            onChange={(e) => {
+              setOriginalText(e.target.value);
+              hasUserEdited.current = true;
+            }}
             placeholder="Text zum Übersetzen eingeben oder Datei importieren..."
             readOnly={isReadOnly}
           />

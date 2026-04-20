@@ -9,7 +9,8 @@
 
 ## 2. Kernfunktionalität & UI
 * **Split-Screen-Editor:** Die Benutzeroberfläche stellt ein zweigeteiltes Textfeld bereit. Auf der linken Seite wird der Originaltext eingegeben/angezeigt, auf der rechten Seite die Übersetzung.
-* **Modernes Design:** Verwendung von Lucide-Icons (Pencil, Trash2, UserPlus) anstelle von Text-Buttons. Spezielle "Nur Lese-Modus" Banner für Admins oder abgeschlossene Dokumente.
+* **Datei Import/Export:** Benutzer können Textdateien (`.txt`, `.docx`) importieren, um den Originaltext zu füllen, und die fertige Übersetzung direkt als `.docx`-Datei exportieren.
+* **Modernes Design:** Verwendung von Lucide-Icons (Pencil, Trash2, UserPlus) anstelle von Text-Buttons. Spezielle "Nur Lese-Modus" Banner für Admins oder abgeschlossene Dokumente. Elegante Toast-Benachrichtigungen ersetzen klassische Browser-Alerts für wichtiges System-Feedback (z.B. Erfolg/Fehler beim Speichern).
 * **Unterstützte Sprachen:** Englisch, Deutsch, Französisch (sowohl als Quell- als auch als Zielsprache wählbar).
 
 ## 3. Rollen und Berechtigungen (RBAC)
@@ -56,7 +57,8 @@ Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard. Die Ansicht kann
 * **Ansichts-Optionen:**
   * **Tabellen-Ansicht:** Klassische tabellarische Darstellung für maximale Übersichtlichkeit.
   * **Kachel-Ansicht (Grid Layout):** Ein responsives, optisch ansprechendes 4-Spalten-Grid (auf Desktop-Geräten) mit Premium-Animationen, Micro-Interactions und intelligenter Titel-Kürzung (Truncation).
-* **Gemeinsame Elemente:** Titel/Auszug, Quell-/Zielsprache, Status (farbige Badges), Deadline (falls zutreffend), Aktionen.
+* **Filterfunktionen:** Dokumente können im Dashboard nach Suchbegriffen, ihrem aktuellen Status (z.B. Offen, In Prüfung) und spezifischen Sprachkombinationen gefiltert werden.
+* **Gemeinsame Elemente:** Titel/Auszug, Quell-/Zielsprache, Status (farbige Badges), zugewiesener Reviewer, Deadline (falls zutreffend) und Aktionen.
 * **Admin Dashboard:** Zeigt alle Dokumente an (mit Such- und Filterfunktionen) sowie einen separaten Bereich für die Verwaltung aller Systembenutzer. Keine Berechtigung, neue Dokumente zu erstellen.
 * **User Dashboard:** Zeigt nur Dokumente mit eigener `creator_id`. Button zum Erstellen neuer Dokumente vorhanden.
 * **Reviewer Dashboard:** Zeigt nur Dokumente mit eigener `reviewer_id`.
