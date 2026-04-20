@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Pencil, Trash2, Plus, LayoutGrid, List, FileText, CheckCircle2, Clock, AlertCircle, Calendar } from 'lucide-react';
+import { Pencil, Trash2, Plus, LayoutGrid, List, FileText, CheckCircle2, Glasses, AlertCircle, Calendar } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 import './Dashboard.css';
@@ -291,13 +291,27 @@ const Dashboard: React.FC = () => {
                   <div className="doc-icon-wrapper">
                     <FileText size={32} />
                     {doc.status === 'ERLEDIGT' && (
-                      <div className="status-seal" title="Abgeschlossen">
-                        <CheckCircle2 size={20} fill="white" />
+                      <div className="status-seal seal-approved" title="Abgeschlossen">
+                        <svg viewBox="0 0 100 100" width="32" height="32">
+                          <path 
+                            d="M50 2L54.3 10.7L63.8 8.8L65.8 18.3L75.3 20.3L73.3 29.8L81.1 34.6L76.3 43.2L81.1 51.8L73.3 56.6L75.3 66.1L65.8 68.1L63.8 77.6L54.3 75.7L50 84.4L45.7 75.7L36.2 77.6L34.2 68.1L24.7 66.1L26.7 56.6L18.9 51.8L23.7 43.2L18.9 34.6L26.7 29.8L24.7 20.3L34.2 18.3L36.2 8.8L45.7 10.7Z" 
+                            fill="#559944" 
+                          />
+                          <circle cx="50" cy="46.4" r="32" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="1 2" />
+                          <path 
+                            d="M32 46 L44 58 L68 34" 
+                            fill="none" 
+                            stroke="white" 
+                            stroke-width="7" 
+                            stroke-linecap="round" 
+                            stroke-linejoin="round" 
+                          />
+                        </svg>
                       </div>
                     )}
                     {doc.status === 'IN_PRUEFUNG' && (
-                      <div className="status-seal" style={{ color: '#3b82f6' }} title="In Prüfung">
-                        <Clock size={20} fill="white" />
+                      <div className="status-seal seal-review" title="In Prüfung">
+                        <Glasses size={20} fill="none" />
                       </div>
                     )}
                   </div>
