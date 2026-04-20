@@ -27,7 +27,6 @@ const EditorPage: React.FC = () => {
   const [status, setStatus] = useState<'OFFEN' | 'IN_PRUEFUNG' | 'KORREKTUR' | 'ERLEDIGT'>('OFFEN');
   
   const [reviewers, setReviewers] = useState<Reviewer[]>([]);
-  const [selectedReviewerId, setSelectedReviewerId] = useState('');
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [error, setError] = useState('');
@@ -76,7 +75,6 @@ const EditorPage: React.FC = () => {
       setSourceLang(doc.sourceLanguage);
       setTargetLang(doc.targetLanguage);
       setStatus(doc.status);
-      if (doc.reviewer) setSelectedReviewerId(doc.reviewer.id);
     } catch (err) {
       setError('Dokument konnte nicht geladen werden');
     } finally {

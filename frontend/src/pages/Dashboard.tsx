@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Pencil, Trash2, Plus, LayoutGrid, List, FileText, CheckCircle2, Glasses, AlertCircle, Calendar } from 'lucide-react';
+import { Pencil, Trash2, Plus, LayoutGrid, List, FileText, Glasses, AlertCircle, Calendar } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 import './Dashboard.css';
