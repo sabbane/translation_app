@@ -51,9 +51,12 @@ Jedes Übersetzungsdokument durchläuft einen definierten Lebenszyklus mit folge
 * **Frontend:** Lösch-Icons (Papierkorb) werden nur gerendert, wenn der User die entsprechende Berechtigung besitzt.
 
 ## 8. Dashboards und Listenansichten
-Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard mit einer Datentabelle.
+Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard. Die Ansicht kann dynamisch zwischen einer Tabellen- und einer modernen Kachel-Ansicht (Tile View / Grid Layout) umgeschaltet werden.
 
-* **Gemeinsame Spalten:** Titel/Auszug, Quell-/Zielsprache, Status (farbige Badges), Deadline (falls zutreffend), Aktionen.
+* **Ansichts-Optionen:**
+  * **Tabellen-Ansicht:** Klassische tabellarische Darstellung für maximale Übersichtlichkeit.
+  * **Kachel-Ansicht (Grid Layout):** Ein responsives, optisch ansprechendes 4-Spalten-Grid (auf Desktop-Geräten) mit Premium-Animationen, Micro-Interactions und intelligenter Titel-Kürzung (Truncation).
+* **Gemeinsame Elemente:** Titel/Auszug, Quell-/Zielsprache, Status (farbige Badges), Deadline (falls zutreffend), Aktionen.
 * **Admin Dashboard:** Zeigt alle Dokumente an (mit Such- und Filterfunktionen) sowie einen separaten Bereich für die Verwaltung aller Systembenutzer. Keine Berechtigung, neue Dokumente zu erstellen.
 * **User Dashboard:** Zeigt nur Dokumente mit eigener `creator_id`. Button zum Erstellen neuer Dokumente vorhanden.
 * **Reviewer Dashboard:** Zeigt nur Dokumente mit eigener `reviewer_id`.
@@ -83,3 +86,4 @@ Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard mit einer Datenta
 ## 10. Testing & Qualitätssicherung
 * **Unit Tests:** Schnelle Tests unter Verwendung von "Fake Repositories" (z.B. `FakeDocumentRepository`), um Controller-Logik, RBAC und Workflows ohne echte Datenbankverbindung im Millisekundenbereich zu testen.
 * **Integration Tests:** Umfassende End-to-End-Tests (`DocumentIntegrationTest`, `UserIntegrationTest`, `TranslationIntegrationTest`), welche die App mit einer echten PostgreSQL-Testdatenbank (`translation_db_test`) hochfahren und REST-Aufrufe sowie Datenbank-Speicherungen validieren. Diese laufen durch ein spezielles `@ActiveProfiles("test")` völlig unabhängig von der Entwicklungs-Datenbank.
+* **E2E UI Tests (Regression Testing):** Frontend-Workflows und UI-Komponenten (inklusive des View-Toggles und der Kachel-Ansicht) werden durch eine Playwright E2E-Testsuite abgesichert, um visuelle und funktionale Regressionen zu vermeiden.
