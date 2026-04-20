@@ -70,9 +70,15 @@ public class User {
     }
 
     public static class UserBuilder {
+        private UUID id;
         private String username;
         private String passwordHash;
         private Role role;
+
+        public UserBuilder id(UUID id) {
+            this.id = id;
+            return this;
+        }
 
         public UserBuilder username(String username) {
             this.username = username;
@@ -90,7 +96,9 @@ public class User {
         }
 
         public User build() {
-            return new User(username, passwordHash, role);
+            User user = new User(username, passwordHash, role);
+            user.setId(id);
+            return user;
         }
     }
 }

@@ -2,11 +2,10 @@ package com.translationapp.controller;
 
 import com.translationapp.model.Document;
 import com.translationapp.model.DocumentStatus;
-import com.translationapp.model.Role;
 import com.translationapp.model.User;
-import com.translationapp.repository.DocumentRepository;
 import com.translationapp.repository.UserRepository;
 import com.translationapp.security.services.UserDetailsImpl;
+import com.translationapp.service.DocumentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -24,11 +24,11 @@ import java.util.UUID;
 @RequestMapping("/api/documents")
 public class DocumentController {
 
-    private final DocumentRepository documentRepository;
+    private final DocumentService documentService;
     private final UserRepository userRepository;
 
-    public DocumentController(DocumentRepository documentRepository, UserRepository userRepository) {
-        this.documentRepository = documentRepository;
+    public DocumentController(DocumentService documentService, UserRepository userRepository) {
+        this.documentService = documentService;
         this.userRepository = userRepository;
     }
 
@@ -49,79 +49,26 @@ public class DocumentController {
         Sort.Direction sortDirection = sort.length > 1 && sort[1].equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
 
-        Page<Document> documents;
-
-        if (currentUser.getRole() == Role.ADMIN) {
-            documents = documentRepository.findAll(pageable);
-        } else if (currentUser.getRole() == Role.REVIEWER) {
-            documents = documentRepository.findAllByReviewer(currentUser, pageable);
-        } else {
-            documents = documentRepository.findAllByCreator(currentUser, pageable);
-        }
-
-        return ResponseEntity.ok(documents);
+        return ResponseEntity.ok(documentService.getDocumentsForUser(currentUser, pageable));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Document> createDocument(@RequestBody Document document) {
         User currentUser = getCurrentUser();
-        document.setCreator(currentUser);
-        document.setStatus(DocumentStatus.OFFEN);
-        if (document.getTitle() == null || document.getTitle().isEmpty()) {
-            document.setTitle("Unbenanntes Dokument");
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(documentRepository.save(document));
+        return ResponseEntity.status(HttpStatus.CREATED).body(documentService.createDocument(document, currentUser));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Document> getDocument(@PathVariable UUID id) {
-        Document document = documentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-
         User currentUser = getCurrentUser();
-        // RBAC Check: Only creator, assigned reviewer or admin
-        if (currentUser.getRole() != Role.ADMIN && 
-            !document.getCreator().getId().equals(currentUser.getId()) && 
-            (document.getReviewer() == null || !document.getReviewer().getId().equals(currentUser.getId()))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
-
-        return ResponseEntity.ok(document);
+        return ResponseEntity.ok(documentService.getDocumentById(id, currentUser));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Document> updateDocument(@PathVariable UUID id, @RequestBody Document documentDetails) {
-        Document document = documentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-
         User currentUser = getCurrentUser();
-        
-        // Only creator or assigned reviewer can update the text. Admin is read-only.
-        if (currentUser.getRole() == Role.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admins have read-only access to document content");
-        }
-        
-        if (!document.getCreator().getId().equals(currentUser.getId()) && 
-            (document.getReviewer() == null || !document.getReviewer().getId().equals(currentUser.getId()))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
-
-        // If status is in review or completed, user cannot edit anymore (unless in correction or admin/reviewer)
-        if (currentUser.getRole() == Role.USER && 
-            document.getStatus() != DocumentStatus.OFFEN && 
-            document.getStatus() != DocumentStatus.KORREKTUR) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Document is in review and cannot be edited by user");
-        }
-
-        document.setTitle(documentDetails.getTitle());
-        document.setOriginalText(documentDetails.getOriginalText());
-        document.setTranslatedText(documentDetails.getTranslatedText());
-        document.setSourceLanguage(documentDetails.getSourceLanguage());
-        document.setTargetLanguage(documentDetails.getTargetLanguage());
-        document.setAutoTranslated(documentDetails.isAutoTranslated());
-
-        return ResponseEntity.ok(documentRepository.save(document));
+        return ResponseEntity.ok(documentService.updateDocument(id, documentDetails, currentUser));
     }
 
     @PostMapping("/{id}/assign")
@@ -130,72 +77,27 @@ public class DocumentController {
             @PathVariable UUID id, 
             @RequestParam UUID reviewerId,
             @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime deadline) {
-        Document document = documentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-
         User currentUser = getCurrentUser();
-        if (currentUser.getRole() == Role.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admins cannot assign reviewers");
-        }
-        if (!document.getCreator().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only creator can assign reviewer");
-        }
-
-        User reviewer = userRepository.findById(reviewerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reviewer not found"));
-        
-        if (reviewer.getRole() != Role.REVIEWER) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selected user is not a reviewer");
-        }
-
-        document.setReviewer(reviewer);
-        document.setReviewDeadline(deadline);
-        document.setStatus(DocumentStatus.IN_PRUEFUNG); // Status changes to in review when submitted for review
-        
-        return ResponseEntity.ok(documentRepository.save(document));
+        return ResponseEntity.ok(documentService.assignReviewer(id, reviewerId, deadline, currentUser));
     }
 
     @PostMapping("/{id}/status")
     public ResponseEntity<Document> updateStatus(@PathVariable UUID id, @RequestParam DocumentStatus status) {
-        Document document = documentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-
         User currentUser = getCurrentUser();
-        
-        // Reviewer can set to ERLEDIGT or KORREKTUR
-        if (currentUser.getRole() == Role.REVIEWER) {
-            if (document.getReviewer() == null || !document.getReviewer().getId().equals(currentUser.getId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not assigned to this reviewer");
-            }
-            document.setStatus(status);
-        } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
-
-        return ResponseEntity.ok(documentRepository.save(document));
+        return ResponseEntity.ok(documentService.updateStatus(id, status, currentUser));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> deleteDocument(@PathVariable UUID id) {
-        Document document = documentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-
         User currentUser = getCurrentUser();
-
-        if (currentUser.getRole() == Role.ADMIN) {
-            documentRepository.delete(document);
-        } else if (currentUser.getRole() == Role.USER && document.getCreator().getId().equals(currentUser.getId())) {
-            documentRepository.delete(document);
-        } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
-
+        documentService.deleteDocument(id, currentUser);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/reviewers")
     public ResponseEntity<List<User>> getReviewers() {
-        return ResponseEntity.ok(userRepository.findAllByRole(Role.REVIEWER));
+        return ResponseEntity.ok(documentService.getReviewers());
     }
 }
+
