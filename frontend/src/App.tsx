@@ -16,6 +16,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  if (user?.role !== 'ADMIN') {
+    return <Navigate to="/" />;
+  }
+  return <>{children}</>;
+};
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -31,7 +42,14 @@ const AppRoutes = () => {
         <Route index element={<Dashboard />} />
         <Route path="editor" element={<EditorPage />} />
         <Route path="editor/:id" element={<EditorPage />} />
-        <Route path="users" element={<UserManagement />} />
+        <Route 
+          path="users" 
+          element={
+            <AdminRoute>
+              <UserManagement />
+            </AdminRoute>
+          } 
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

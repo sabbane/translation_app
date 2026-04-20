@@ -36,7 +36,7 @@ Jedes Übersetzungsdokument durchläuft einen definierten Lebenszyklus mit folge
 
 ## 5. Externe API-Integration (Automatische Vorübersetzung)
 * **Tool:** DeepL API Free (REST API).
-* **Backend-Architektur:** Ein Spring Boot Service (`DeepLService`) sendet die REST-Anfragen an die DeepL API. Der API-Key ist in den `application.properties` hinterlegt. Bei Tests wird der Service per `@TestConfiguration` gemockt, um Kosten/Limitierungen zu vermeiden.
+* **Backend-Architektur:** Ein Spring Boot Service (`DeepLService`) sendet die REST-Anfragen an die DeepL API. Die Geschäftslogik ist in Services kapselt, während ein `GlobalExceptionHandler` für einheitliche Fehlermeldungen sorgt. Der API-Key ist in den `application.properties` hinterlegt. Bei Tests wird der Service per `@TestConfiguration` gemockt.
 * **Frontend UI-Interaktion:**
   * Die Vorübersetzung wird durch den "Automatisch Übersetzen" Button ausgelöst.
   * Beim Klick wird der Button blockiert (Ladezustand).
@@ -58,7 +58,7 @@ Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard. Die Ansicht kann
 
 * **Ansichts-Optionen:**
   * **Tabellen-Ansicht:** Klassische tabellarische Darstellung für maximale Übersichtlichkeit.
-  * **Kachel-Ansicht (Grid Layout):** Ein responsives, optisch ansprechendes 4-Spalten-Grid (auf Desktop-Geräten) mit Premium-Animationen, Micro-Interactions und intelligenter Titel-Kürzung (Truncation).
+  * **Kachel-Ansicht (Grid Layout):** Ein responsives 4-Spalten-Grid mit Premium-Animationen, Micro-Interactions und visuellen Status-Indikatoren (z.B. ein geprägtes Siegel für "Erledigt" und Brillen-Icon für "In Prüfung").
 * **Filterfunktionen:** Dokumente können im Dashboard nach Suchbegriffen, ihrem aktuellen Status (z.B. Offen, In Prüfung) und spezifischen Sprachkombinationen gefiltert werden.
 * **Gemeinsame Elemente:** Titel/Auszug, Quell-/Zielsprache, Status (farbige Badges), zugewiesener Reviewer, Deadline (falls zutreffend) und Aktionen.
 * **Admin Dashboard:** Zeigt alle Dokumente an (mit Such- und Filterfunktionen) sowie einen separaten Bereich für die Verwaltung aller Systembenutzer. Keine Berechtigung, neue Dokumente zu erstellen.
@@ -88,6 +88,7 @@ Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard. Die Ansicht kann
 * `review_deadline` (Timestamp, nullable)
 
 ## 10. Testing & Qualitätssicherung
-* **Unit Tests:** Schnelle Tests unter Verwendung von "Fake Repositories" (z.B. `FakeDocumentRepository`), um Controller-Logik, RBAC und Workflows ohne echte Datenbankverbindung im Millisekundenbereich zu testen.
-* **Integration Tests:** Umfassende End-to-End-Tests (`DocumentIntegrationTest`, `UserIntegrationTest`, `TranslationIntegrationTest`), welche die App mit einer echten PostgreSQL-Testdatenbank (`translation_db_test`) hochfahren und REST-Aufrufe sowie Datenbank-Speicherungen validieren. Diese laufen durch ein spezielles `@ActiveProfiles("test")` völlig unabhängig von der Entwicklungs-Datenbank.
-* **E2E UI Tests (Regression Testing):** Frontend-Workflows und UI-Komponenten (inklusive des View-Toggles und der Kachel-Ansicht) werden durch eine Playwright E2E-Testsuite abgesichert, um visuelle und funktionale Regressionen zu vermeiden.
+* **Unit Tests (Service Layer):** Isolierte Tests der Geschäftslogik in `UserService` und `DocumentService` unter Verwendung von Mockito für die Repositories.
+* **Unit Tests (Controller Layer):** Validierung der REST-Endpunkte und RBAC-Berechtigungen mittels Mockito-Mocks für die Service-Ebene, um eine schnelle Testausführung ohne Spring-Kontext-Overhead zu gewährleisten.
+* **Integration Tests:** Umfassende End-to-End-Tests (`DocumentIntegrationTest`, `UserIntegrationTest`), welche die App mit einer echten PostgreSQL-Testdatenbank (`translation_db_test`) hochfahren und REST-Aufrufe validieren.
+* **E2E UI Tests (Regression Testing):** Frontend-Workflows und UI-Komponenten (inkl. der Dashboard-UX) werden durch eine Playwright E2E-Testsuite abgesichert.
