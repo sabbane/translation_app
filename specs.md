@@ -3,14 +3,16 @@
 ## 1. Technologie-Stack
 * **Backend:** Java, Spring Boot (REST API)
 * **Frontend:** React, TypeScript (Vite)
+* **Bibliotheken:** Mammoth (DOCX Import), docx (DOCX Export), Lucide-React (Icons), Axios
 * **Datenbank:** PostgreSQL (Lokal: `translation_db`, Test: `translation_db_test`)
 * **Authentifizierung:** Spring Security mit JWT (JSON Web Tokens)
-* **Testing:** JUnit 5, Mockito, TestRestTemplate, Fake Repositories (Unit & Integration Tests)
+* **Testing:** JUnit 5, Mockito, Playwright (E2E), Fake Repositories (Unit & Integration Tests)
 
 ## 2. Kernfunktionalität & UI
 * **Split-Screen-Editor:** Die Benutzeroberfläche stellt ein zweigeteiltes Textfeld bereit. Auf der linken Seite wird der Originaltext eingegeben/angezeigt, auf der rechten Seite die Übersetzung.
-* **Datei Import/Export:** Benutzer können Textdateien (`.txt`, `.docx`) importieren, um den Originaltext zu füllen, und die fertige Übersetzung direkt als `.docx`-Datei exportieren.
-* **Modernes Design:** Verwendung von Lucide-Icons (Pencil, Trash2, UserPlus) anstelle von Text-Buttons. Spezielle "Nur Lese-Modus" Banner für Admins oder abgeschlossene Dokumente. Elegante Toast-Benachrichtigungen ersetzen klassische Browser-Alerts für wichtiges System-Feedback (z.B. Erfolg/Fehler beim Speichern).
+* **Datei Import/Export:** Nahtloser Import von `.txt` und `.docx` Dateien sowie Export der Übersetzungen als professionelle `.docx`-Dokumente.
+* **Modernes Design:** Verwendung von Lucide-Icons, benutzerdefinierten Modalen (für Bestätigungen/Zuweisungen) und einem konsistenten Farbschema.
+* **UX & Feedback:** Elegante Toast-Benachrichtigungen für System-Feedback (Erfolg/Fehler) und animierte Übergänge zwischen den Dashboard-Ansichten.
 * **Unterstützte Sprachen:** Englisch, Deutsch, Französisch (sowohl als Quell- als auch als Zielsprache wählbar).
 
 ## 3. Rollen und Berechtigungen (RBAC)
