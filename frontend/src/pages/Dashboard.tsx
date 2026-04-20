@@ -33,7 +33,7 @@ const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('grid');
   const [statusFilter, setStatusFilter] = useState('');
   const [langFilter, setLangFilter] = useState('');
 
@@ -178,18 +178,18 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="view-toggle">
           <button 
-            className={viewMode === 'table' ? 'active' : ''} 
-            onClick={() => setViewMode('table')}
-            title="Listenansicht"
-          >
-            <List size={20} />
-          </button>
-          <button 
             className={viewMode === 'grid' ? 'active' : ''} 
             onClick={() => setViewMode('grid')}
             title="Kachelansicht"
           >
             <LayoutGrid size={20} />
+          </button>
+          <button 
+            className={viewMode === 'table' ? 'active' : ''} 
+            onClick={() => setViewMode('table')}
+            title="Listenansicht"
+          >
+            <List size={20} />
           </button>
         </div>
       </div>
@@ -333,7 +333,7 @@ const Dashboard: React.FC = () => {
                   </div>
 
                   {doc.reviewDeadline && (
-                    <div className="card-deadline">
+                    <div className="card-deadline" title="Frist für die Überprüfung">
                       {diffTime! < 0 ? <AlertCircle size={14} /> : <Calendar size={14} />}
                       {new Date(doc.reviewDeadline).toLocaleDateString()}
                     </div>

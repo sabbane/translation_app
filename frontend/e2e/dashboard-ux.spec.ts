@@ -11,25 +11,25 @@ test.describe('Dashboard UX and Filters', () => {
   });
 
   test('should toggle between table and grid view', async ({ page }) => {
-    // 1. Initial state is table
-    await expect(page.locator('.data-table')).toBeVisible();
-    await expect(page.locator('.document-grid')).not.toBeVisible();
-
-    // 2. Switch to grid view
-    await page.click('button[title="Kachelansicht"]');
+    // 1. Initial state is grid
     await expect(page.locator('.document-grid')).toBeVisible();
     await expect(page.locator('.data-table')).not.toBeVisible();
 
-    // 3. Switch back to table view
+    // 2. Switch to table view
     await page.click('button[title="Listenansicht"]');
     await expect(page.locator('.data-table')).toBeVisible();
     await expect(page.locator('.document-grid')).not.toBeVisible();
+
+    // 3. Switch back to grid view
+    await page.click('button[title="Kachelansicht"]');
+    await expect(page.locator('.document-grid')).toBeVisible();
+    await expect(page.locator('.data-table')).not.toBeVisible();
   });
 
   test('should filter documents by search query', async ({ page }) => {
     // Assuming user-1 has at least one document from DatabaseSeeder
     // We'll create one just to be sure
-    const uniqueTitle = `Searchable Doc ${Date.now()}`;
+    const uniqueTitle = `Searchable-Doc-${Date.now()}`;
     await page.goto('/editor');
     await page.fill('.editor-title-input', uniqueTitle);
     await page.getByPlaceholder('Text zum Übersetzen eingeben oder Datei importieren...').fill('Test search');
@@ -39,26 +39,26 @@ test.describe('Dashboard UX and Filters', () => {
     // 1. Search for the unique title
     await page.fill('.search-input', uniqueTitle);
     
-    // 2. Only the matching row should be visible
-    const rows = page.locator('table.data-table tbody tr');
-    await expect(rows).toHaveCount(1);
-    await expect(rows.first()).toContainText(uniqueTitle);
+    // 2. Only the matching card should be visible
+    const cards = page.locator('.doc-card');
+    await expect(cards).toHaveCount(1);
+    await expect(cards.first()).toContainText(uniqueTitle);
 
     // 3. Clear search
     await page.fill('.search-input', '');
-    await expect(rows.count()).resolves.toBeGreaterThan(5); // user-1 should see all their documents again
+    await expect(cards.count()).resolves.toBeGreaterThan(5); // user-1 should see all their documents again
   });
 
   test('should filter documents by status', async ({ page }) => {
     // Select "In Prüfung" from status filter
     await page.selectOption('.filter-select:nth-of-type(1)', 'IN_PRUEFUNG');
     
-    // Check that all visible rows have the "In Prüfung" badge
-    const rows = page.locator('table.data-table tbody tr');
-    const rowCount = await rows.count();
+    // Check that all visible cards have the "In Prüfung" badge
+    const cards = page.locator('.doc-card');
+    const cardCount = await cards.count();
     
-    for (let i = 0; i < rowCount; i++) {
-      await expect(rows.nth(i).getByText('In Prüfung')).toBeVisible();
+    for (let i = 0; i < cardCount; i++) {
+      await expect(cards.nth(i).getByText('In Prüfung')).toBeVisible();
     }
   });
 });

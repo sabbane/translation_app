@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Full Cycle Translation Workflow', () => {
-  const docTitle = `Full Cycle Test ${Date.now()}`;
+  const docTitle = `Full-Cycle-Test-${Date.now()}`;
 
   test('should hand off document from User to Reviewer and complete it', async ({ browser }) => {
     // 1. USER: Create and Submit
@@ -46,20 +46,20 @@ test.describe('Full Cycle Translation Workflow', () => {
 
     await expect(reviewerPage.getByText('Reviewer Dashboard')).toBeVisible();
     
-    const docRow = reviewerPage.locator('tr').filter({ hasText: docTitle });
-    await expect(docRow).toBeVisible();
-    await expect(docRow.getByText('In Prüfung')).toBeVisible();
-
-    // Open document
-    await docRow.getByRole('link', { name: /Ansehen\/Bearbeiten/i }).click();
+    const docCard = reviewerPage.locator('.doc-card').filter({ hasText: docTitle });
+    await expect(docCard).toBeVisible();
+    await expect(docCard.getByText('In Prüfung')).toBeVisible();
+    
+    // Open document (click the card)
+    await docCard.click();
     
     // Click 'Bestätigen & Abschließen'
     await reviewerPage.getByRole('button', { name: /Bestätigen & Abschließen/i }).click();
 
     // Verify back on dashboard and status is "Fertig"
     await expect(reviewerPage).toHaveURL('http://localhost:5173/');
-    const completedDocRow = reviewerPage.locator('tr').filter({ hasText: docTitle });
-    await expect(completedDocRow.getByText('Fertig')).toBeVisible();
+    const completedDocCard = reviewerPage.locator('.doc-card').filter({ hasText: docTitle });
+    await expect(completedDocCard.getByText('Fertig')).toBeVisible();
     
     await reviewerContext.close();
   });

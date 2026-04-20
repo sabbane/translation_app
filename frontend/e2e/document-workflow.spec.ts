@@ -22,7 +22,7 @@ test.describe('Document Workflow', () => {
     await expect(page).toHaveURL(/.*editor/);
 
     // 2. Fill title and text
-    const docTitle = `E2E Test Document ${Date.now()}`;
+    const docTitle = `E2E-Doc-${Date.now()}`;
     await page.fill('.editor-title-input', docTitle);
     
     // Select languages (EN -> DE)
@@ -56,8 +56,8 @@ test.describe('Document Workflow', () => {
 
     // 6. Verify back on dashboard and document is in list with status "In Prüfung"
     await expect(page).toHaveURL('http://localhost:5173/');
-    const docRow = page.locator('tr').filter({ hasText: docTitle });
-    await expect(docRow).toBeVisible();
-    await expect(docRow.getByText('In Prüfung')).toBeVisible();
+    const docCard = page.locator('.doc-card').filter({ hasText: docTitle });
+    await expect(docCard).toBeVisible();
+    await expect(docCard.getByText('In Prüfung')).toBeVisible();
   });
 });
