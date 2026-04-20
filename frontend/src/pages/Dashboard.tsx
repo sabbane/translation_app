@@ -93,6 +93,7 @@ const Dashboard: React.FC = () => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const matchesSearch = (
+        (doc.title && doc.title.toLowerCase().includes(query)) ||
         (doc.originalText && doc.originalText.toLowerCase().includes(query)) ||
         (doc.sourceLanguage && doc.sourceLanguage.toLowerCase().includes(query)) ||
         (doc.targetLanguage && doc.targetLanguage.toLowerCase().includes(query)) ||

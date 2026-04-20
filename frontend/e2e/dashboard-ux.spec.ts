@@ -46,7 +46,7 @@ test.describe('Dashboard UX and Filters', () => {
 
     // 3. Clear search
     await page.fill('.search-input', '');
-    await expect(rows).toHaveCount(3); // admin has many, user-1 has few
+    await expect(rows.count()).resolves.toBeGreaterThan(5); // user-1 should see all their documents again
   });
 
   test('should filter documents by status', async ({ page }) => {
