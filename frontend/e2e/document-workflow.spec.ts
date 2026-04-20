@@ -30,7 +30,7 @@ test.describe('Document Workflow', () => {
     await page.selectOption('select:nth-of-type(2)', 'DE');
 
     // Fill original text
-    await page.getByPlaceholder('Text zum Übersetzen eingeben...').fill('The quick brown fox jumps over the lazy dog.');
+    await page.getByPlaceholder('Text zum Übersetzen eingeben oder Datei importieren...').fill('The quick brown fox jumps over the lazy dog.');
 
     // 3. Wait for auto-translation (debounce 800ms + network)
     await expect(async () => {
