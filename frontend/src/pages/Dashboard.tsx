@@ -32,6 +32,8 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [langFilter, setLangFilter] = useState('');
 
   // Modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -84,16 +86,34 @@ const Dashboard: React.FC = () => {
   };
 
   const filteredDocuments = documents.filter(doc => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      (doc.originalText && doc.originalText.toLowerCase().includes(query)) ||
-      (doc.sourceLanguage && doc.sourceLanguage.toLowerCase().includes(query)) ||
-      (doc.targetLanguage && doc.targetLanguage.toLowerCase().includes(query)) ||
-      (doc.status && doc.status.toLowerCase().includes(query)) ||
-      (doc.creator && doc.creator.username.toLowerCase().includes(query)) ||
-      (doc.reviewer && doc.reviewer.username.toLowerCase().includes(query))
-    );
+    // Search Query Filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = (
+        (doc.originalText && doc.originalText.toLowerCase().includes(query)) ||
+        (doc.sourceLanguage && doc.sourceLanguage.toLowerCase().includes(query)) ||
+        (doc.targetLanguage && doc.targetLanguage.toLowerCase().includes(query)) ||
+        (doc.status && doc.status.toLowerCase().includes(query)) ||
+        (doc.creator && doc.creator.username.toLowerCase().includes(query)) ||
+        (doc.reviewer && doc.reviewer.username.toLowerCase().includes(query))
+      );
+      if (!matchesSearch) return false;
+    }
+
+    // Status Filter
+    if (statusFilter && doc.status !== statusFilter) {
+      return false;
+    }
+
+    // Language Filter
+    if (langFilter) {
+      const docLangCombo = `${doc.sourceLanguage}-${doc.targetLanguage}`;
+      if (docLangCombo !== langFilter) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
   return (
@@ -119,13 +139,39 @@ const Dashboard: React.FC = () => {
       />
 
       <div className="dashboard-controls">
-        <input 
-          type="text" 
-          placeholder="Dokumente suchen..." 
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className="search-input"
-        />
+        <div className="filters-group">
+          <input 
+            type="text" 
+            placeholder="Dokumente suchen..." 
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+          <select 
+            value={statusFilter} 
+            onChange={e => setStatusFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">Alle Status</option>
+            <option value="OFFEN">Entwurf</option>
+            <option value="IN_PRUEFUNG">In Prüfung</option>
+            <option value="KORREKTUR">Korrektur</option>
+            <option value="ERLEDIGT">Fertig</option>
+          </select>
+          <select 
+            value={langFilter} 
+            onChange={e => setLangFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">Alle Sprachen</option>
+            <option value="DE-EN">DE → EN</option>
+            <option value="EN-DE">EN → DE</option>
+            <option value="DE-FR">DE → FR</option>
+            <option value="FR-DE">FR → DE</option>
+            <option value="EN-FR">EN → FR</option>
+            <option value="FR-EN">FR → EN</option>
+          </select>
+        </div>
         <div className="view-toggle">
           <button 
             className={viewMode === 'table' ? 'active' : ''} 
@@ -262,6 +308,10 @@ const Dashboard: React.FC = () => {
                     <div className="doc-card-status">
                       {getStatusBadge(doc.status)}
                     </div>
+                  </div>
+
+                  <div className="doc-card-reviewer">
+                    <strong>Reviewer:</strong> {doc.reviewer?.username || '-'}
                   </div>
 
                   {doc.reviewDeadline && (
