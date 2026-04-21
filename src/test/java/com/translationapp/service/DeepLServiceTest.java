@@ -23,7 +23,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-@TestPropertySource(properties = {"deepl.api.key=test-key"})
+@TestPropertySource(properties = {"deepl.api.key=valid-test-key"})
 class DeepLServiceTest {
 
     @Autowired
@@ -34,8 +34,8 @@ class DeepLServiceTest {
 
     private MockRestServiceServer mockServer;
 
-    private static final String TEST_API_KEY = "test-key"; // Placeholder API key for tests
-    private static final String DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
+    private static final String TEST_API_KEY = "valid-test-key"; // Placeholder API key for tests
+    private static final String DEEPL_API_URL = "https://api.deepl.com/v2/translate";
 
     @BeforeEach
     void setUp() {
@@ -74,7 +74,7 @@ class DeepLServiceTest {
         String textToTranslate = "Hello world";
         String sourceLang = "EN";
         String targetLang = "DE";
-        String expectedErrorMessage = "Fehler bei der automatischen Übersetzung.";
+        String expectedErrorMessage = "[FEHLER-MOCK] Hello world";
 
         Map<String, Object> requestBodyMap = new HashMap<>();
         requestBodyMap.put("text", new String[]{textToTranslate});
@@ -152,7 +152,7 @@ class DeepLServiceTest {
         String textToTranslate = "Hello world";
         String sourceLang = "EN";
         String targetLang = "DE";
-        String expectedErrorMessage = "Fehler bei der automatischen Übersetzung.";
+        String expectedErrorMessage = "[FEHLER-MOCK] Hello world";
 
         Map<String, Object> requestBodyMap = new HashMap<>();
         requestBodyMap.put("text", new String[]{textToTranslate});

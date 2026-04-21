@@ -1,9 +1,15 @@
+.login-header {
+  margin-bottom: 24px;
+}
+
 .login-container {
+  min-height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 160px);
   padding: 20px;
+  background-color: var(--background);
 }
 
 .login-card {

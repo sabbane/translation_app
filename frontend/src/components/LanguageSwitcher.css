@@ -1,0 +1,111 @@
+.language-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.language-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.language-toggle:hover, .language-toggle.active {
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.globe-icon {
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+.current-flag {
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.chevron {
+  opacity: 0.5;
+  transition: transform 0.2s ease;
+}
+
+.chevron.rotate {
+  transform: rotate(180deg);
+}
+
+.language-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  min-width: 160px;
+  z-index: 2000;
+  padding: 8px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+  color: var(--text-main);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.menu-item:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.menu-item.selected {
+  background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.05);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.menu-flag {
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.menu-code {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: var(--background);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

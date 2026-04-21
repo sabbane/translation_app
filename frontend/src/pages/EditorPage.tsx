@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTranslation } from 'react-i18next';
 import api from '../api/axios';
 import { Languages, Send, Save, Wand2, ChevronLeft, Lock, Upload, Download } from 'lucide-react';
 import * as mammoth from 'mammoth';
@@ -18,6 +19,7 @@ const EditorPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToast } = useToast();
+  const { t } = useTranslation();
 
   const [title, setTitle] = useState('');
   const [originalText, setOriginalText] = useState('');
@@ -60,7 +62,7 @@ const EditorPage: React.FC = () => {
       const response = await api.get('/documents/reviewers');
       setReviewers(response.data);
     } catch (err) {
-      console.error('Laden der Reviewer fehlgeschlagen');
+      console.error(t('error.loading_reviewers'));
     }
   };
 
@@ -76,7 +78,7 @@ const EditorPage: React.FC = () => {
       setTargetLang(doc.targetLanguage);
       setStatus(doc.status);
     } catch (err) {
-      setError('Dokument konnte nicht geladen werden');
+      setError(t('error.loading_document'));
     } finally {
       setLoading(false);
     }
@@ -95,14 +97,14 @@ const EditorPage: React.FC = () => {
 
       if (id) {
         await api.put(`/documents/${id}`, docData);
-        addToast('Dokument aktualisiert!', 'success');
+        addToast(t('editor.saved'), 'success');
       } else {
         const response = await api.post('/documents', docData);
-        addToast('Dokument erstellt!', 'success');
+        addToast(t('editor.created'), 'success');
         navigate(`/editor/${response.data.id}`);
       }
     } catch (err) {
-      setError('Speichern fehlgeschlagen');
+      setError(t('error.saving'));
     } finally {
       setLoading(false);
     }
@@ -119,7 +121,7 @@ const EditorPage: React.FC = () => {
       });
       setTranslatedText(response.data.translatedText);
     } catch (err) {
-      console.error('Übersetzungsfehler:', err);
+      console.error(t('error.translation'), err);
     } finally {
       setTranslating(false);
     }
@@ -139,18 +141,18 @@ const EditorPage: React.FC = () => {
         const result = await mammoth.extractRawText({ arrayBuffer });
         setOriginalText(result.value);
         hasUserEdited.current = true;
-        addToast('DOCX erfolgreich importiert!', 'success');
+        addToast(t('editor.import_success'), 'success');
       } else if (file.name.endsWith('.txt')) {
         const text = await file.text();
         setOriginalText(text);
         hasUserEdited.current = true;
-        addToast('TXT erfolgreich importiert!', 'success');
+        addToast(t('editor.import_success'), 'success');
       } else {
-        addToast('Nicht unterstütztes Format', 'error');
+        addToast(t('error.format_not_supported'), 'error');
       }
     } catch (err) {
       console.error(err);
-      addToast('Fehler beim Lesen der Datei', 'error');
+      addToast(t('error.file_reading'), 'error');
     }
     
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -158,7 +160,7 @@ const EditorPage: React.FC = () => {
 
   const handleExport = async () => {
     if (!translatedText) {
-      addToast('Kein Text zum Exportieren vorhanden', 'error');
+      addToast(t('error.no_text_to_export'), 'error');
       return;
     }
     
@@ -181,10 +183,10 @@ const EditorPage: React.FC = () => {
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
-      addToast('DOCX erfolgreich exportiert!', 'success');
+      addToast(t('editor.export_success'), 'success');
     } catch (err) {
       console.error(err);
-      addToast('Fehler beim Exportieren', 'error');
+      addToast(t('error.exporting'), 'error');
     }
   };
 
@@ -192,10 +194,10 @@ const EditorPage: React.FC = () => {
     try {
       setLoading(true);
       await api.post(`/documents/${id}/assign?reviewerId=${reviewerId}&deadline=${deadline}`);
-      addToast('Zur Überprüfung eingereicht!', 'success');
+      addToast(t('editor.assigned'), 'success');
       navigate('/');
     } catch (err) {
-      setError('Zuweisung fehlgeschlagen');
+      setError(t('error.assignment_failed'));
     } finally {
       setLoading(false);
     }
@@ -205,10 +207,10 @@ const EditorPage: React.FC = () => {
     try {
       setLoading(true);
       await api.post(`/documents/${id}/status?status=${newStatus}`);
-      addToast(newStatus === 'ERLEDIGT' ? 'Dokument abgeschlossen!' : 'Korrektur angefordert!', 'success');
+      addToast(newStatus === 'ERLEDIGT' ? t('editor.completed') : t('editor.correction_requested'), 'success');
       navigate('/');
     } catch (err) {
-      setError('Status-Update fehlgeschlagen');
+      setError(t('error.status_update_failed'));
     } finally {
       setLoading(false);
     }
@@ -216,36 +218,35 @@ const EditorPage: React.FC = () => {
   
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'OFFEN': return <span className="badge badge-draft">Entwurf</span>;
-      case 'IN_PRUEFUNG': return <span className="badge badge-review">In Prüfung</span>;
-      case 'KORREKTUR': return <span className="badge badge-correction">Korrektur</span>;
-      case 'ERLEDIGT': return <span className="badge badge-completed">Fertig</span>;
+      case 'OFFEN': return <span className="badge badge-draft">{t('status.draft')}</span>;
+      case 'IN_PRUEFUNG': return <span className="badge badge-review">{t('status.in_review')}</span>;
+      case 'KORREKTUR': return <span className="badge badge-correction">{t('status.correction')}</span>;
+      case 'ERLEDIGT': return <span className="badge badge-completed">{t('status.completed')}</span>;
       default: return <span className="badge">{status}</span>;
     }
   };
 
-  const isReadOnly = user?.role === 'ADMIN' || 
-                     (user?.role === 'USER' && status !== 'OFFEN' && status !== 'KORREKTUR') || 
+  const isReadOnly = (user?.role === 'USER' && status !== 'OFFEN' && status !== 'KORREKTUR') || 
                      (user?.role === 'REVIEWER' && status === 'ERLEDIGT');
 
-  if (loading && !originalText) return <div className="loading-screen">Lade...</div>;
+  if (loading && !originalText) return <div className="loading-screen">{t('common.loading')}...</div>;
 
   return (
     <div className="editor-container">
       <div className="editor-header">
         <button onClick={() => navigate('/')} className="btn-back">
-          <ChevronLeft size={20} /> Dashboard
+          <ChevronLeft size={20} /> {t('common.dashboard')}
         </button>
         {isReadOnly && (
           <div className="readonly-banner">
-            <Lock size={16} /> Nur Lese-Modus
+            <Lock size={16} /> {t('editor.readonly_mode')}
           </div>
         )}
         <div className="title-input-container">
           <input 
             type="text" 
             className="editor-title-input" 
-            placeholder="Dokumenttitel..." 
+            placeholder={t('editor.title_placeholder')} 
             value={title} 
             onChange={(e) => setTitle(e.target.value)}
             disabled={isReadOnly}
@@ -257,7 +258,7 @@ const EditorPage: React.FC = () => {
         <div className="editor-actions">
           {!isReadOnly && (
             <button onClick={handleSave} className="btn btn-secondary" disabled={loading}>
-              <Save size={18} /> Speichern
+              <Save size={18} /> {t('common.save')}
             </button>
           )}
 
@@ -276,14 +277,14 @@ const EditorPage: React.FC = () => {
                 className="btn btn-danger" 
                 disabled={loading}
               >
-                Nachbesserung anfordern
+                {t('editor.request_correction')}
               </button>
               <button 
                 onClick={() => handleUpdateStatus('ERLEDIGT')} 
                 className="btn btn-success" 
                 disabled={loading}
               >
-                Bestätigen & Abschließen
+                {t('editor.confirm_and_complete')}
               </button>
             </div>
           )}
@@ -296,24 +297,26 @@ const EditorPage: React.FC = () => {
             setSourceLang(e.target.value);
             hasUserEdited.current = true;
           }} disabled={isReadOnly}>
-            <option value="EN">Englisch</option>
-            <option value="DE">Deutsch</option>
-            <option value="FR">Französisch</option>
+            <option value="EN">{t('lang.en')}</option>
+            <option value="DE">{t('lang.de')}</option>
+            <option value="FR">{t('lang.fr')}</option>
+            <option value="AR">{t('lang.ar')}</option>
           </select>
           <Languages size={20} className="lang-icon" />
           <select value={targetLang} onChange={(e) => {
             setTargetLang(e.target.value);
             hasUserEdited.current = true;
           }} disabled={isReadOnly}>
-            <option value="DE">Deutsch</option>
-            <option value="EN">Englisch</option>
-            <option value="FR">Französisch</option>
+            <option value="DE">{t('lang.de')}</option>
+            <option value="EN">{t('lang.en')}</option>
+            <option value="FR">{t('lang.fr')}</option>
+            <option value="AR">{t('lang.ar')}</option>
           </select>
         </div>
         
         {translating && (
           <div className="translation-status">
-            <Wand2 size={16} className="spinning" /> Live-Übersetzung...
+            <Wand2 size={16} className="spinning" /> {t('editor.live_translation')}...
           </div>
         )}
       </div>
@@ -321,7 +324,7 @@ const EditorPage: React.FC = () => {
       <div className="split-editor">
         <div className="editor-pane card">
           <div className="pane-header">
-            <label>Originaltext ({sourceLang})</label>
+            <label>{t('editor.original_text')} ({sourceLang})</label>
             {!isReadOnly && (
               <div className="pane-actions">
                 <input 
@@ -335,9 +338,9 @@ const EditorPage: React.FC = () => {
                   onClick={() => fileInputRef.current?.click()} 
                   className="btn-small" 
                   style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                  title="Textdatei importieren (.txt, .docx)"
+                  title={t('editor.import_file')}
                 >
-                  <Upload size={14} /> Import
+                  <Upload size={14} /> {t('common.import')}
                 </button>
               </div>
             )}
@@ -349,22 +352,22 @@ const EditorPage: React.FC = () => {
               setOriginalText(e.target.value);
               hasUserEdited.current = true;
             }}
-            placeholder="Text zum Übersetzen eingeben oder Datei importieren..."
+            placeholder={t('editor.original_placeholder')}
             readOnly={isReadOnly}
           />
         </div>
         <div className="editor-pane card">
           <div className="pane-header">
-            <label>Übersetzung ({targetLang})</label>
+            <label>{t('editor.translated_text')} ({targetLang})</label>
             <div className="pane-actions">
               <button 
                 onClick={handleExport} 
                 className="btn-small" 
                 style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                 disabled={!translatedText}
-                title="Als DOCX exportieren"
+                title={t('editor.export_file')}
               >
-                <Download size={14} /> Export
+                <Download size={14} /> {t('common.export')}
               </button>
             </div>
           </div>
@@ -372,7 +375,7 @@ const EditorPage: React.FC = () => {
             className="text-area"
             value={translatedText}
             onChange={(e) => setTranslatedText(e.target.value)}
-            placeholder="Die Übersetzung erscheint hier..."
+            placeholder={t('editor.translated_placeholder')}
             readOnly={isReadOnly}
           />
         </div>
@@ -394,11 +397,12 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
   const [days, setDays] = useState('14');
   const [date, setDate] = useState('');
 
+  const { t } = useTranslation();
   const { addToast } = useToast();
 
   const handleSubmit = () => {
     if (!reviewerId) {
-      addToast('Bitte Reviewer wählen', 'error');
+      addToast(t('assignment.error_reviewer'), 'error');
       return;
     }
 
@@ -409,7 +413,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
       finalDeadline = d.toISOString();
     } else {
       if (!date) {
-        addToast('Bitte Datum wählen', 'error');
+        addToast(t('assignment.error_date'), 'error');
         return;
       }
       finalDeadline = new Date(date).toISOString();
@@ -421,7 +425,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
   if (!isOpen) {
     return (
       <button onClick={() => setIsOpen(true)} className="btn btn-primary" disabled={loading}>
-        <Send size={18} /> Zur Review einreichen
+        <Send size={18} /> {t('assignment.submit_btn')}
       </button>
     );
   }
@@ -429,12 +433,12 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
   return (
     <div className="modal-overlay">
       <div className="modal-content card">
-        <h3>Dokument zur Review einreichen</h3>
+        <h3>{t('assignment.title')}</h3>
         
         <div className="form-group">
-          <label>Reviewer auswählen</label>
+          <label>{t('assignment.select_reviewer')}</label>
           <select value={reviewerId} onChange={(e) => setReviewerId(e.target.value)} className="reviewer-select">
-            <option value="">Wählen...</option>
+            <option value="">{t('assignment.placeholder_reviewer')}</option>
             {reviewers.map(r => (
               <option key={r.id} value={r.id}>{r.username}</option>
             ))}
@@ -442,19 +446,19 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
         </div>
 
         <div className="form-group">
-          <label>Überprüfungsfrist festlegen</label>
+          <label>{t('assignment.set_deadline')}</label>
           <div className="deadline-toggle">
             <button 
               className={`btn-toggle ${deadlineType === 'days' ? 'active' : ''}`}
               onClick={() => setDeadlineType('days')}
             >
-              In Tagen
+              {t('assignment.in_days')}
             </button>
             <button 
               className={`btn-toggle ${deadlineType === 'date' ? 'active' : ''}`}
               onClick={() => setDeadlineType('date')}
             >
-              Datum wählen
+              {t('assignment.choose_date')}
             </button>
           </div>
 
@@ -477,9 +481,9 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({ reviewers, onAssign, 
         </div>
 
         <div className="modal-footer">
-          <button onClick={() => setIsOpen(false)} className="btn btn-secondary">Abbrechen</button>
+          <button onClick={() => setIsOpen(false)} className="btn btn-secondary">{t('common.cancel')}</button>
           <button onClick={handleSubmit} className="btn btn-primary" disabled={!reviewerId || loading}>
-            Zuweisen & Einreichen
+            {t('assignment.confirm_btn')}
           </button>
         </div>
       </div>

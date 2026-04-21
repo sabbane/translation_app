@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import api from '../api/axios';
 import './LoginPage.css';
 
@@ -11,6 +13,7 @@ const LoginPage: React.FC = () => {
   const [role, setRole] = useState<'ADMIN' | 'USER' | 'REVIEWER'>('USER');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -29,10 +32,10 @@ const LoginPage: React.FC = () => {
       } else {
         await api.post('/auth/signup', { username, password, role });
         setIsLogin(true);
-        setError('Registrierung erfolgreich! Bitte loggen Sie sich ein.');
+        setError(t('login.success_signup'));
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Authentifizierung fehlgeschlagen');
+      setError(err.response?.data?.message || t('login.error_auth'));
     } finally {
       setLoading(false);
     }
@@ -40,60 +43,63 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="login-container">
+      <div className="login-header">
+        <LanguageSwitcher />
+      </div>
       <div className="login-card card">
-        <h1>{isLogin ? 'Willkommen zurück' : 'Account erstellen'}</h1>
-        <p>{isLogin ? 'Bitte loggen Sie sich in Ihren Account ein' : 'Registrieren Sie einen neuen Account'}</p>
+        <h1>{isLogin ? t('login.title_login') : t('login.title_signup')}</h1>
+        <p>{isLogin ? t('login.subtitle_login') : t('login.subtitle_signup')}</p>
         
         {error && <div className={`alert ${error.includes('erfolgreich') ? 'alert-success' : 'alert-error'}`}>{error}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">Benutzername</label>
+            <label htmlFor="username">{t('login.username')}</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Benutzername eingeben"
+              placeholder={t('login.username_placeholder')}
               required
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Passwort</label>
+            <label htmlFor="password">{t('login.password')}</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Passwort eingeben"
+              placeholder={t('login.password_placeholder')}
               required
             />
           </div>
 
           {!isLogin && (
             <div className="form-group">
-              <label htmlFor="role">Rolle</label>
+              <label htmlFor="role">{t('login.role')}</label>
               <select
                 id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
               >
-                <option value="USER">Benutzer</option>
-                <option value="REVIEWER">Reviewer</option>
-                <option value="ADMIN">Administrator</option>
+                <option value="USER">{t('login.role_user')}</option>
+                <option value="REVIEWER">{t('login.role_reviewer')}</option>
+                <option value="ADMIN">{t('login.role_admin')}</option>
               </select>
             </div>
           )}
 
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Wird verarbeitet...' : (isLogin ? 'Anmelden' : 'Registrieren')}
+            {loading ? t('login.btn_processing') : (isLogin ? t('login.btn_login') : t('login.btn_signup'))}
           </button>
         </form>
 
         <div className="login-footer">
           <button onClick={() => setIsLogin(!isLogin)} className="btn-link">
-            {isLogin ? "Noch keinen Account? Registrieren" : "Bereits einen Account? Anmelden"}
+            {isLogin ? t('login.link_no_account') : t('login.link_has_account')}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Pencil, Trash2, Plus, LayoutGrid, List, FileText, Glasses, AlertCircle, Calendar } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
@@ -36,6 +37,7 @@ const Dashboard: React.FC = () => {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('grid');
   const [statusFilter, setStatusFilter] = useState('');
   const [langFilter, setLangFilter] = useState('');
+  const { t } = useTranslation();
 
   // Modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -123,13 +125,15 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>{user?.role === 'ADMIN' ? 'Administrator Dashboard' : 
-             user?.role === 'REVIEWER' ? 'Reviewer Dashboard' : 'Meine Dokumente'}</h1>
-        {user?.role === 'USER' && (
-          <Link to="/editor" className="btn btn-primary">
-            <Plus size={20} /> Neues Dokument
-          </Link>
-        )}
+        <h1>{user?.role === 'ADMIN' ? t('dashboard.admin_dashboard') : 
+             user?.role === 'REVIEWER' ? t('dashboard.reviewer_dashboard') : t('dashboard.my_documents')}</h1>
+        <div className="header-actions">
+          {user?.role === 'USER' && (
+            <Link to="/editor" className="btn btn-primary">
+              <Plus size={20} /> {t('dashboard.new_document')}
+            </Link>
+          )}
+        </div>
       </div>
 
       <Modal 
@@ -137,16 +141,17 @@ const Dashboard: React.FC = () => {
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={confirmDelete}
         title="Dokument löschen"
-        message={`Möchten Sie das Dokument "${docToDelete?.title}" wirklich unwiderruflich löschen?`}
-        confirmText="Löschen"
+        title={t('dashboard.delete_title')}
+        message={t('dashboard.delete_message', { title: docToDelete?.title })}
+        confirmText={t('dashboard.delete_confirm')}
         type="danger"
       />
 
       <div className="dashboard-controls">
-        <div className="filters-group">
+        <div className="filters-left">
           <input 
             type="text" 
-            placeholder="Dokumente suchen..." 
+            placeholder={t('dashboard.search_placeholder')} 
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="search-input"
@@ -156,18 +161,18 @@ const Dashboard: React.FC = () => {
             onChange={e => setStatusFilter(e.target.value)}
             className="filter-select"
           >
-            <option value="">Alle Status</option>
-            <option value="OFFEN">Entwurf</option>
-            <option value="IN_PRUEFUNG">In Prüfung</option>
-            <option value="KORREKTUR">Korrektur</option>
-            <option value="ERLEDIGT">Fertig</option>
+            <option value="">{t('dashboard.all_statuses')}</option>
+            <option value="OFFEN">{t('dashboard.status_draft')}</option>
+            <option value="IN_PRUEFUNG">{t('dashboard.status_review')}</option>
+            <option value="KORREKTUR">{t('dashboard.status_correction')}</option>
+            <option value="ERLEDIGT">{t('dashboard.status_done')}</option>
           </select>
           <select 
             value={langFilter} 
             onChange={e => setLangFilter(e.target.value)}
             className="filter-select"
           >
-            <option value="">Alle Sprachen</option>
+            <option value="">{t('dashboard.all_languages')}</option>
             <option value="DE-EN">DE → EN</option>
             <option value="EN-DE">EN → DE</option>
             <option value="DE-FR">DE → FR</option>
@@ -180,14 +185,14 @@ const Dashboard: React.FC = () => {
           <button 
             className={viewMode === 'grid' ? 'active' : ''} 
             onClick={() => setViewMode('grid')}
-            title="Kachelansicht"
+            title={t('dashboard.grid_view')}
           >
             <LayoutGrid size={20} />
           </button>
           <button 
             className={viewMode === 'table' ? 'active' : ''} 
             onClick={() => setViewMode('table')}
-            title="Listenansicht"
+            title={t('dashboard.list_view')}
           >
             <List size={20} />
           </button>
@@ -198,21 +203,21 @@ const Dashboard: React.FC = () => {
 
       <div className={viewMode === 'table' ? 'data-table-container' : ''}>
         {loading ? (
-          <div className="loading">Lade Dokumente...</div>
+          <div className="loading">{t('dashboard.loading')}</div>
         ) : filteredDocuments.length === 0 ? (
-          <div className="empty-state">Keine Dokumente gefunden.</div>
+          <div className="empty-state">{t('dashboard.no_docs')}</div>
         ) : viewMode === 'table' ? (
           <table className="data-table">
             <thead>
               <tr>
-                <th>Titel</th>
-                <th>Sprachen</th>
-                <th>Status</th>
-                {user?.role === 'ADMIN' && <th>Ersteller</th>}
-                <th>Reviewer</th>
-                <th>Frist</th>
-                <th>Datum</th>
-                <th>Aktionen</th>
+                <th>{t('dashboard.table_title')}</th>
+                <th>{t('dashboard.table_languages')}</th>
+                <th>{t('dashboard.table_status')}</th>
+                {user?.role === 'ADMIN' && <th>{t('dashboard.table_creator')}</th>}
+                <th>{t('dashboard.table_reviewer')}</th>
+                <th>{t('dashboard.table_deadline')}</th>
+                <th>{t('dashboard.table_date')}</th>
+                <th>{t('dashboard.table_actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -247,14 +252,14 @@ const Dashboard: React.FC = () => {
                   <td>{new Date(doc.createdAt).toLocaleDateString()}</td>
                   <td>
                     <div className="action-buttons">
-                      <Link to={`/editor/${doc.id}`} className="btn-icon" title="Ansehen/Bearbeiten">
+                      <Link to={`/editor/${doc.id}`} className="btn-icon" title={t('dashboard.edit_tooltip')}>
                         <Pencil size={18} />
                       </Link>
                       {(user?.role === 'ADMIN' || (user?.role === 'USER' && doc.creator.id === user.id)) && (
                         <button 
                           onClick={() => handleDeleteClick(doc)} 
                           className="btn-icon btn-delete" 
-                          title="Löschen"
+                          title={t('dashboard.delete_tooltip')}
                         >
                           <Trash2 size={18} />
                         </button>
@@ -276,7 +281,6 @@ const Dashboard: React.FC = () => {
 
               let cardClass = 'doc-card';
               if (doc.status === 'ERLEDIGT') {
-                // Done documents don't need warning classes
               } else if (deadlineDate) {
                 if (diffTime! < 0) cardClass += ' expired';
                 else if (diffDays! < 7) cardClass += ' warning';
@@ -292,26 +296,26 @@ const Dashboard: React.FC = () => {
                   <div className="doc-icon-wrapper">
                     <FileText size={32} />
                     {doc.status === 'ERLEDIGT' && (
-                      <div className="status-seal seal-approved" title="Abgeschlossen">
+                      <div className="status-seal seal-approved" title={t('dashboard.status_done')}>
                         <svg viewBox="0 0 100 100" width="32" height="32">
                           <path 
                             d="M50 2L54.3 10.7L63.8 8.8L65.8 18.3L75.3 20.3L73.3 29.8L81.1 34.6L76.3 43.2L81.1 51.8L73.3 56.6L75.3 66.1L65.8 68.1L63.8 77.6L54.3 75.7L50 84.4L45.7 75.7L36.2 77.6L34.2 68.1L24.7 66.1L26.7 56.6L18.9 51.8L23.7 43.2L18.9 34.6L26.7 29.8L24.7 20.3L34.2 18.3L36.2 8.8L45.7 10.7Z" 
                             fill="#559944" 
                           />
-                          <circle cx="50" cy="46.4" r="32" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="1 2" />
+                          <circle cx="50" cy="46.4" r="32" fill="none" stroke="white" strokeWidth="1.5" strokeDasharray="1 2" />
                           <path 
                             d="M32 46 L44 58 L68 34" 
                             fill="none" 
                             stroke="white" 
-                            stroke-width="7" 
-                            stroke-linecap="round" 
-                            stroke-linejoin="round" 
+                            strokeWidth="7" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
                           />
                         </svg>
                       </div>
                     )}
                     {doc.status === 'IN_PRUEFUNG' && (
-                      <div className="status-seal seal-review" title="In Prüfung">
+                      <div className="status-seal seal-review" title={t('dashboard.status_review')}>
                         <Glasses size={20} fill="none" />
                       </div>
                     )}
@@ -329,11 +333,11 @@ const Dashboard: React.FC = () => {
                   </div>
 
                   <div className="doc-card-reviewer">
-                    <strong>Reviewer:</strong> {doc.reviewer?.username || '-'}
+                    <strong>{t('dashboard.table_reviewer')}:</strong> {doc.reviewer?.username || '-'}
                   </div>
 
                   {doc.reviewDeadline && (
-                    <div className="card-deadline" title="Frist für die Überprüfung">
+                    <div className="card-deadline" title={t('dashboard.deadline_tooltip')}>
                       {diffTime! < 0 ? <AlertCircle size={14} /> : <Calendar size={14} />}
                       {new Date(doc.reviewDeadline).toLocaleDateString()}
                     </div>

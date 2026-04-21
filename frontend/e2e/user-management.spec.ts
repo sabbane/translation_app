@@ -22,7 +22,7 @@ test.describe('User Management (Admin)', () => {
 
   test('should display the user list', async ({ page }) => {
     // Ensure the users section is visible
-    await expect(page.getByRole('heading', { name: 'Benutzerverwaltung' })).toBeVisible();
+    await expect(page.locator('h1')).toContainText('Benutzerverwaltung');
     
     // Check if the admin user is in the list
     await expect(page.getByRole('cell', { name: 'admin', exact: true })).toBeVisible();
@@ -43,7 +43,7 @@ test.describe('User Management (Admin)', () => {
     await page.selectOption('select[name="role"]', 'USER');
 
     // Click the add user button
-    await page.getByRole('button', { name: 'Benutzer erstellen' }).click();
+    await page.getByRole('button', { name: /Benutzer erstellen/i }).click();
 
     // Wait for the new user to appear in the list
     await expect(page.getByText(uniqueUsername, { exact: true })).toBeVisible();
@@ -58,7 +58,7 @@ test.describe('User Management (Admin)', () => {
     await page.fill('input[name="username"]', uniqueUsername);
     await page.fill('input[name="password"]', 'testpass123');
     await page.selectOption('select[name="role"]', 'USER');
-    await page.getByRole('button', { name: 'Benutzer erstellen' }).click();
+    await page.getByRole('button', { name: /Benutzer erstellen/i }).click();
 
     // Wait for the user to appear
     const userRow = page.locator('tr').filter({ hasText: uniqueUsername });

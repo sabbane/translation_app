@@ -17,7 +17,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Disabled;
 
 @SpringBootTest
-@Disabled("Run this test manually to seed the dev database. Uncomment when needed.")
+// @Disabled("Run this test manually to seed the dev database. Uncomment when needed.")
 public class DatabaseSeeder {
 
     @Autowired

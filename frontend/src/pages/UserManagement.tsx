@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
+import { useTranslation } from 'react-i18next';
 import { Pencil, Trash2, UserPlus } from 'lucide-react';
 import './UserManagement.css';
 import Modal from '../components/Modal';
@@ -14,6 +15,7 @@ const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { t } = useTranslation();
   
   // Modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -35,7 +37,7 @@ const UserManagement: React.FC = () => {
       setUsers(response.data);
       setError('');
     } catch (err: any) {
-      setError('Benutzer konnten nicht geladen werden.');
+      setError(t('users.error_load'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -71,7 +73,7 @@ const UserManagement: React.FC = () => {
       fetchUsers();
       resetForm();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Benutzer konnte nicht gespeichert werden.');
+      setError(err.response?.data?.message || t('users.error_save'));
     }
   };
 
@@ -100,7 +102,7 @@ const UserManagement: React.FC = () => {
     } catch (err: any) {
       console.error('Löschfehler:', err.response?.data || err.message);
       const serverMsg = err.response?.data?.message;
-      setError(serverMsg || 'Benutzer konnte nicht gelöscht werden.');
+      setError(serverMsg || t('users.error_delete'));
       setDeleteModalOpen(false);
     }
   };
@@ -122,9 +124,9 @@ const UserManagement: React.FC = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Benutzerverwaltung</h1>
+        <h1>{t('users.title')}</h1>
         <button className="btn btn-primary" onClick={toggleForm}>
-          {showForm ? 'Abbrechen' : <><UserPlus size={18} /> Neuen Benutzer anlegen</>}
+          {showForm ? t('common.cancel') : <><UserPlus size={18} /> {t('users.new_user')}</>}
         </button>
       </div>
 
@@ -132,10 +134,10 @@ const UserManagement: React.FC = () => {
 
       {showForm && (
         <div className="card form-card">
-          <h2>{editingUserId ? 'Benutzer bearbeiten' : 'Neuen Benutzer erstellen'}</h2>
+          <h2>{editingUserId ? t('users.edit_user') : t('users.create_user')}</h2>
           <form onSubmit={handleSubmit} className="user-form">
             <div className="form-group">
-              <label>Benutzername</label>
+              <label>{t('login.username')}</label>
               <input
                 type="text"
                 name="username"
@@ -145,7 +147,7 @@ const UserManagement: React.FC = () => {
               />
             </div>
             <div className="form-group">
-              <label>Passwort {editingUserId && '(Leer lassen für keine Änderung)'}</label>
+              <label>{t('login.password')} {editingUserId && `(${t('users.password_hint_optional')})`}</label>
               <input
                 type="password"
                 name="password"
@@ -155,20 +157,20 @@ const UserManagement: React.FC = () => {
               />
             </div>
             <div className="form-group">
-              <label>Rolle</label>
+              <label>{t('login.role')}</label>
               <select
                 name="role"
                 value={formData.role}
                 onChange={handleInputChange}
               >
-                <option value="USER">Benutzer</option>
-                <option value="REVIEWER">Reviewer</option>
-                <option value="ADMIN">Administrator</option>
+                <option value="USER">{t('login.role_user')}</option>
+                <option value="REVIEWER">{t('login.role_reviewer')}</option>
+                <option value="ADMIN">{t('login.role_admin')}</option>
               </select>
             </div>
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">
-                {editingUserId ? 'Benutzer aktualisieren' : 'Benutzer erstellen'}
+                {editingUserId ? t('users.update_user') : t('users.create_user')}
               </button>
             </div>
           </form>
@@ -179,24 +181,24 @@ const UserManagement: React.FC = () => {
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Benutzer löschen"
-        message={`Möchten Sie den Benutzer "${userToDelete?.username}" wirklich unwiderruflich löschen? Alle zugehörigen Dokumente werden ebenfalls entfernt.`}
-        confirmText="Löschen"
+        title={t('users.delete_title')}
+        message={t('users.delete_message', { username: userToDelete?.username })}
+        confirmText={t('common.delete')}
         type="danger"
       />
 
       <div className="data-table-container">
         {loading ? (
-          <div className="loading">Lade Benutzer...</div>
+          <div className="loading">{t('users.loading')}</div>
         ) : users.length === 0 ? (
-          <div className="empty-state">Keine Benutzer gefunden.</div>
+          <div className="empty-state">{t('users.empty')}</div>
         ) : (
           <table className="data-table">
             <thead>
               <tr>
-                <th>Benutzername</th>
-                <th>Rolle</th>
-                <th>Aktionen</th>
+                <th>{t('users.table_username')}</th>
+                <th>{t('users.table_role')}</th>
+                <th>{t('users.table_actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -205,8 +207,8 @@ const UserManagement: React.FC = () => {
                   <td style={{ fontWeight: 600 }}>{u.username}</td>
                   <td>
                     <span className={`role-badge role-${u.role.toLowerCase()}`}>
-                      {u.role === 'ADMIN' ? 'Administrator' : 
-                       u.role === 'REVIEWER' ? 'Reviewer' : 'Benutzer'}
+                      {u.role === 'ADMIN' ? t('login.role_admin') : 
+                       u.role === 'REVIEWER' ? t('login.role_reviewer') : t('login.role_user')}
                     </span>
                   </td>
                   <td>
@@ -214,14 +216,14 @@ const UserManagement: React.FC = () => {
                       <button 
                         onClick={() => handleEdit(u)} 
                         className="btn-icon" 
-                        title="Bearbeiten"
+                        title={t('dashboard.edit_tooltip')}
                       >
                         <Pencil size={18} />
                       </button>
                       <button 
                         onClick={() => handleDeleteClick(u)} 
                         className="btn-icon btn-delete" 
-                        title="Löschen"
+                        title={t('common.delete')}
                       >
                         <Trash2 size={18} />
                       </button>

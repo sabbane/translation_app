@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 import './Layout.css';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -21,26 +24,29 @@ const Layout: React.FC = () => {
             <span className="logo-text">TranslateApp</span>
           </Link>
           <div className="nav-links">
-            <Link to="/">Dashboard</Link>
-            <Link to="/editor">Editor</Link>
+            <Link to="/">{t('nav.dashboard')}</Link>
+            <Link to="/editor">{t('nav.editor')}</Link>
             {user?.role === 'ADMIN' && (
-              <Link to="/users">Benutzerverwaltung</Link>
+              <Link to="/users">{t('nav.users')}</Link>
             )}
           </div>
-          {user && (
-            <div className="user-menu">
-              <div className="user-info">
-                <span className="username">{user.username}</span>
-                <span className={`role-tag role-${user.role.toLowerCase()}`}>
-                  {user.role === 'ADMIN' ? 'Administrator' : 
-                   user.role === 'REVIEWER' ? 'Reviewer' : 'Benutzer'}
-                </span>
+          <div className="nav-actions">
+            <LanguageSwitcher />
+            {user && (
+              <div className="user-menu">
+                <div className="user-info">
+                  <span className="username">{user.username}</span>
+                  <span className={`role-tag role-${user.role.toLowerCase()}`}>
+                    {user.role === 'ADMIN' ? t('login.role_admin') : 
+                     user.role === 'REVIEWER' ? t('login.role_reviewer') : t('login.role_user')}
+                  </span>
+                </div>
+                <button onClick={handleLogout} className="btn-logout">
+                  {t('common.logout')}
+                </button>
               </div>
-              <button onClick={handleLogout} className="btn-logout">
-                Abmelden
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </nav>
       <main className="container main-content">
@@ -48,7 +54,7 @@ const Layout: React.FC = () => {
       </main>
       <footer className="footer">
         <div className="container">
-          <p>&copy; 2025 Translation App. Erstellt mit React & Spring Boot.</p>
+          <p>{t('footer.copyright')}</p>
         </div>
       </footer>
     </div>

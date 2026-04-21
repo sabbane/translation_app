@@ -18,14 +18,23 @@ public class DeepLService {
     private String apiKey;
 
     private final RestTemplate restTemplate;
-    private static final String DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
 
     public DeepLService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public String translate(String text, String sourceLang, String targetLang) {
+        // Fallback für Entwicklung ohne API-Key
+        if (apiKey == null || apiKey.isEmpty() || apiKey.equals("test-key")) {
+            System.out.println("DeepL API Key fehlt. Nutze Mock-Modus.");
+            return "[MOCK-" + targetLang.toUpperCase() + "] " + text;
+        }
+
         try {
+            String apiUrl = apiKey.endsWith(":fx") 
+                ? "https://api-free.deepl.com/v2/translate" 
+                : "https://api.deepl.com/v2/translate";
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "DeepL-Auth-Key " + apiKey);
@@ -39,15 +48,15 @@ public class DeepLService {
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
-            DeepLResponse response = restTemplate.postForObject(DEEPL_API_URL, entity, DeepLResponse.class);
+            DeepLResponse response = restTemplate.postForObject(apiUrl, entity, DeepLResponse.class);
 
             if (response != null && response.getTranslations() != null && !response.getTranslations().isEmpty()) {
                 return response.getTranslations().get(0).getText();
             }
         } catch (Exception e) {
-            // In Produktion: Logging implementieren
             System.err.println("Fehler bei DeepL API-Aufruf: " + e.getMessage());
-            return "Fehler bei der automatischen Übersetzung.";
+            // Selbst im Fehlerfall geben wir einen Mock-Text zurück, um den Workflow nicht zu unterbrechen
+            return "[FEHLER-MOCK] " + text;
         }
         return "";
     }

@@ -12,11 +12,14 @@
   "dependencies": {
     "axios": "^1.15.0",
     "docx": "^9.6.1",
+    "i18next": "^26.0.6",
+    "i18next-browser-languagedetector": "^8.2.1",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^1.8.0",
     "mammoth": "^1.12.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-i18next": "^17.0.4",
     "react-router-dom": "^7.14.1"
   },
   "devDependencies": {
