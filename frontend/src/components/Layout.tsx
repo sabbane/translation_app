@@ -11,13 +11,21 @@ const Layout: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [showManual, setShowManual] = React.useState(false);
+  const manualProcessed = React.useRef(false);
 
   React.useEffect(() => {
+    if (manualProcessed.current) return;
+    
     if (localStorage.getItem('showManual') === 'true' && localStorage.getItem('disableManual') !== 'true') {
       setShowManual(true);
-      localStorage.removeItem('showManual');
+      manualProcessed.current = true;
     }
   }, []);
+
+  const handleCloseManual = () => {
+    setShowManual(false);
+    localStorage.removeItem('showManual');
+  };
 
   const handleLogout = () => {
     logout();
@@ -66,7 +74,7 @@ const Layout: React.FC = () => {
           <p>{t('footer.copyright')}</p>
         </div>
       </footer>
-      {showManual && <UserManualModal onClose={() => setShowManual(false)} />}
+      {showManual && <UserManualModal onClose={handleCloseManual} />}
     </div>
   );
 };
