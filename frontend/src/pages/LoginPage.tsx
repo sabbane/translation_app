@@ -28,8 +28,10 @@ const LoginPage: React.FC = () => {
         const response = await api.post('/auth/signin', { username, password });
         const { accessToken, id, username: resUsername, role: resRole } = response.data;
         login(accessToken, { id, username: resUsername, role: resRole });
+        console.log('Login successful, setting showManual flag...');
         localStorage.setItem('showManual', 'true');
-        navigate('/');
+        // Small delay to ensure localStorage is persisted before navigation
+        setTimeout(() => navigate('/'), 50);
       } else {
         await api.post('/auth/signup', { username, password, role });
         setIsLogin(true);

@@ -13,7 +13,12 @@ const Layout: React.FC = () => {
   const [showManual, setShowManual] = React.useState(false);
 
   React.useEffect(() => {
-    if (localStorage.getItem('showManual') === 'true' && localStorage.getItem('disableManual') !== 'true') {
+    const flag = localStorage.getItem('showManual');
+    const disabled = localStorage.getItem('disableManual');
+    console.log('Layout mounted. showManual flag:', flag, 'disableManual:', disabled);
+    
+    if (flag === 'true' && disabled !== 'true') {
+      console.log('Triggering manual modal...');
       setShowManual(true);
       localStorage.removeItem('showManual');
     }
