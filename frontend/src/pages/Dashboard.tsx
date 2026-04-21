@@ -140,7 +140,6 @@ const Dashboard: React.FC = () => {
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Dokument löschen"
         title={t('dashboard.delete_title')}
         message={t('dashboard.delete_message', { title: docToDelete?.title })}
         confirmText={t('dashboard.delete_confirm')}

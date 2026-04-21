@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, BookOpen, Globe, FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { X, BookOpen, FileText, CheckCircle, ArrowRight } from 'lucide-react';
 import './UserManualModal.css';
 
 interface UserManualModalProps {
@@ -20,7 +20,6 @@ const UserManualModal: React.FC<UserManualModalProps> = ({ onClose }) => {
 
   // Update i18n language when selectedLang changes for the content in this modal
   useEffect(() => {
-    const originalLang = i18n.language;
     i18n.changeLanguage(selectedLang);
     return () => {
       // We don't necessarily want to revert the system language when closing, 
