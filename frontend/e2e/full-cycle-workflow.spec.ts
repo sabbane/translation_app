@@ -3,10 +3,19 @@ import { test, expect } from '@playwright/test';
 test.describe('Full Cycle Translation Workflow', () => {
   const docTitle = `Full-Cycle-Test-${Date.now()}`;
 
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('disableManual', 'true');
+    });
+  });
+
   test('should hand off document from User to Reviewer and complete it', async ({ browser }) => {
     // 1. USER: Create and Submit
     const userContext = await browser.newContext();
     const userPage = await userContext.newPage();
+    await userPage.addInitScript(() => {
+      window.localStorage.setItem('disableManual', 'true');
+    });
     
     await userPage.goto('http://localhost:5173/');
     await userPage.fill('#username', 'user-1');
@@ -35,6 +44,9 @@ test.describe('Full Cycle Translation Workflow', () => {
     // 2. REVIEWER: Review and Complete
     const reviewerContext = await browser.newContext();
     const reviewerPage = await reviewerContext.newPage();
+    await reviewerPage.addInitScript(() => {
+      window.localStorage.setItem('disableManual', 'true');
+    });
     
     await reviewerPage.goto('http://localhost:5173/');
     await reviewerPage.fill('#username', 'reviewer-1');

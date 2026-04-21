@@ -147,6 +147,19 @@
     "choose_date": "Datum w\u00e4hlen",
     "confirm_btn": "Zuweisen & Einreichen",
     "error_reviewer": "Bitte Reviewer w\u00e4hlen",
-    "error_date": "Bitte Datum w\u00e4hlen"
+    "error_date": "Bitte Datum wählen"
+  },
+  "manual": {
+    "popup_title": "Benutzerhandbuch verfügbar",
+    "popup_subtitle": "Möchten Sie das Benutzerhandbuch herunterladen, um die Funktionen der App besser kennenzulernen?",
+    "select_language": "Sprache wählen",
+    "download": "Herunterladen",
+    "title": "Benutzerhandbuch",
+    "intro_title": "Über die App",
+    "user_functions_title": "Funktionen für Benutzer",
+    "reviewer_functions_title": "Funktionen für Reviewer",
+    "intro_text": "Willkommen bei unserer professionellen Übersetzungs-App. Dieses Tool wurde entwickelt, um den Übersetzungsprozess von Dokumenten zu rationalisieren und die Zusammenarbeit zwischen Übersetzern und Reviewern zu optimieren. Mit einer intuitiven Benutzeroberfläche können Sie Texte importieren, bearbeiten und direkt in mehrere Sprachen übersetzen lassen. Die App unterstützt modernste Technologien wie DeepL für automatisierte Vorübersetzungen. Ein integrierter Workflow sorgt dafür, dass jedes Dokument eine Qualitätsprüfung durchläuft. Reviewer können Korrekturen direkt im Editor vornehmen und Deadlines im Auge behalten. Die rollenbasierte Zugriffskontrolle garantiert dabei höchste Sicherheit für Ihre Daten. Ob Admin, User oder Reviewer – jeder findet die passenden Werkzeuge für seine Aufgaben. Starten Sie jetzt und erleben Sie effizientes Übersetzungsmanagement auf neuem Niveau.",
+    "user_functions_text": "Als User können Sie neue Dokumente erstellen, Texte eingeben oder hochladen und die DeepL-Integration für schnelle Ergebnisse nutzen. Sobald Ihre Übersetzung fertig ist, weisen Sie diese einem Reviewer zu und setzen eine Deadline.",
+    "reviewer_functions_text": "Als Reviewer erhalten Sie Benachrichtigungen über zugewiesene Dokumente. Sie können die Übersetzungen prüfen, Anpassungen vornehmen und den Status auf 'Erledigt' setzen, um den Prozess abzuschließen."
   }
 }

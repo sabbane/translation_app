@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('User Management (Admin)', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('disableManual', 'true');
+    });
     // Navigate to the app and login as admin
     await page.goto('/');
     

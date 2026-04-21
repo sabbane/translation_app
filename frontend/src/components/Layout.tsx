@@ -3,12 +3,21 @@ import { Link, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
+import UserManualModal from './UserManualModal';
 import './Layout.css';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [showManual, setShowManual] = React.useState(false);
+
+  React.useEffect(() => {
+    if (localStorage.getItem('showManual') === 'true' && localStorage.getItem('disableManual') !== 'true') {
+      setShowManual(true);
+      localStorage.removeItem('showManual');
+    }
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -57,6 +66,7 @@ const Layout: React.FC = () => {
           <p>{t('footer.copyright')}</p>
         </div>
       </footer>
+      {showManual && <UserManualModal onClose={() => setShowManual(false)} />}
     </div>
   );
 };

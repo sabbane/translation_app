@@ -147,6 +147,19 @@
     "choose_date": "Choisir une date",
     "confirm_btn": "Attribuer et soumettre",
     "error_reviewer": "Veuillez s\u00e9lectionner un r\u00e9viseur",
-    "error_date": "Veuillez s\u00e9lectionner une date"
+    "error_date": "Veuillez sélectionner une date"
+  },
+  "manual": {
+    "popup_title": "Manuel d'utilisation disponible",
+    "popup_subtitle": "Souhaitez-vous télécharger le manuel d'utilisation pour en savoir plus sur les fonctionnalités de l'application ?",
+    "select_language": "Choisir la langue",
+    "download": "Télécharger",
+    "title": "Manuel d'utilisation",
+    "intro_title": "À propos de l'application",
+    "user_functions_title": "Fonctions utilisateur",
+    "reviewer_functions_title": "Fonctions réviseur",
+    "intro_text": "Bienvenue dans notre application de traduction professionnelle. Cet outil est conçu pour simplifier le processus de traduction de documents et optimiser la collaboration entre traducteurs et réviseurs. Grâce à une interface intuitive, vous pouvez importer, éditer et traduire des textes directement dans plusieurs langues. L'application prend en charge des technologies de pointe comme DeepL pour les pré-traductions automatisées. Un flux de travail intégré garantit que chaque document subit un contrôle de qualité. Les réviseurs peuvent apporter des corrections directement dans l'éditeur et suivre les délais. Le contrôle d'accès basé sur les rôles garantit une sécurité maximale pour vos données. Que vous soyez administrateur, utilisateur ou réviseur, chacun trouve les outils adaptés à ses tâches. Commencez dès maintenant et découvrez une gestion de traduction efficace à un nouveau niveau.",
+    "user_functions_text": "En tant qu'utilisateur, vous pouvez créer de nouveaux documents, saisir ou télécharger des textes et utiliser l'intégration DeepL pour des résultats rapides. Une fois votre traduction prête, assignez-la à un réviseur et fixez une échéance.",
+    "reviewer_functions_text": "En tant que réviseur, vous recevrez des notifications pour les documents assignés. Vous pouvez vérifier les traductions, effectuer des ajustements et définir le statut sur 'Terminé' pour achever le processus."
   }
 }

@@ -34,6 +34,9 @@ public class UserIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private com.translationapp.repository.DocumentRepository documentRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private User adminUser;
@@ -47,6 +50,7 @@ public class UserIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        documentRepository.deleteAll();
         userRepository.deleteAll();
 
         // Create test users
@@ -63,6 +67,7 @@ public class UserIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        documentRepository.deleteAll();
         userRepository.deleteAll();
     }
 

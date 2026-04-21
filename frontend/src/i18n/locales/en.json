@@ -148,5 +148,18 @@
     "confirm_btn": "Assign & Submit",
     "error_reviewer": "Please select a reviewer",
     "error_date": "Please select a date"
+  },
+  "manual": {
+    "popup_title": "User Manual Available",
+    "popup_subtitle": "Would you like to download the user manual to learn more about the app's features?",
+    "select_language": "Select Language",
+    "download": "Download",
+    "title": "User Manual",
+    "intro_title": "About the App",
+    "user_functions_title": "User Functions",
+    "reviewer_functions_title": "Reviewer Functions",
+    "intro_text": "Welcome to our professional translation app. This tool is designed to streamline the document translation process and optimize collaboration between translators and reviewers. With an intuitive interface, you can import, edit, and translate texts directly into multiple languages. The app supports state-of-the-art technologies like DeepL for automated pre-translations. An integrated workflow ensures that every document undergoes a quality check. Reviewers can make corrections directly in the editor and keep track of deadlines. Role-based access control guarantees maximum security for your data. Whether you are an Admin, User, or Reviewer, everyone finds the right tools for their tasks. Get started now and experience efficient translation management at a new level.",
+    "user_functions_text": "As a User, you can create new documents, enter or upload texts, and use the DeepL integration for fast results. Once your translation is ready, assign it to a reviewer and set a deadline.",
+    "reviewer_functions_text": "As a Reviewer, you will receive notifications for assigned documents. You can check translations, make adjustments, and set the status to 'Done' to complete the process."
   }
 }

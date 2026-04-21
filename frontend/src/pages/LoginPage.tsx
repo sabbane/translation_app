@@ -28,6 +28,7 @@ const LoginPage: React.FC = () => {
         const response = await api.post('/auth/signin', { username, password });
         const { accessToken, id, username: resUsername, role: resRole } = response.data;
         login(accessToken, { id, username: resUsername, role: resRole });
+        localStorage.setItem('showManual', 'true');
         navigate('/');
       } else {
         await api.post('/auth/signup', { username, password, role });

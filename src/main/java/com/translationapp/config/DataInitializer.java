@@ -20,26 +20,37 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private com.translationapp.repository.DocumentRepository documentRepository;
 
+    @Autowired
+    private org.springframework.core.env.Environment env;
+
     @Override
     public void run(String... args) throws Exception {
-        // Clear and re-seed for consistent test environment
-        documentRepository.deleteAll();
-        userRepository.deleteAll();
-        
-        // Test Admin
-        saveUser("admin", "admin123", Role.ADMIN);
+        boolean isTestProfile = java.util.Arrays.asList(env.getActiveProfiles()).contains("test");
 
-        // Test Users
-        saveUser("user", "user123", Role.USER);
-        User u1 = saveUser("user-1", "user123", Role.USER);
-        saveUser("user-2", "user123", Role.USER);
+        if (isTestProfile) {
+            System.out.println("TEST PROFILE ACTIVE: Clearing and re-seeding test database...");
+            documentRepository.deleteAll();
+            userRepository.deleteAll();
+        }
 
-        // Test Reviewers
-        User r1 = saveUser("reviewer-1", "reviewer123", Role.REVIEWER);
-        User r2 = saveUser("reviewer-2", "reviewer123", Role.REVIEWER);
-        User r3 = saveUser("reviewer-3", "reviewer123", Role.REVIEWER);
+        // 1. Seed Users (either always ensure or full seed if test)
+        ensureUserExists("admin", "admin123", Role.ADMIN);
+        ensureUserExists("user", "user123", Role.USER);
+        User u1 = ensureUserExists("user-1", "user123", Role.USER);
+        ensureUserExists("user-2", "user123", Role.USER);
+        User r1 = ensureUserExists("reviewer-1", "reviewer123", Role.REVIEWER);
+        ensureUserExists("reviewer-2", "reviewer123", Role.REVIEWER);
+        ensureUserExists("reviewer-3", "reviewer123", Role.REVIEWER);
 
-        // Seed enough docs for u1 to pass dashboard tests (needs > 5)
+        // 2. Seed Docs (Full seed if test, otherwise only if empty)
+        if (isTestProfile || documentRepository.count() == 0) {
+            seedTestDocuments(u1, r1);
+        }
+
+        System.out.println(isTestProfile ? "Test database seeded." : "Base test data ensured.");
+    }
+
+    private void seedTestDocuments(User creator, User reviewer) {
         for (int i = 1; i <= 6; i++) {
             com.translationapp.model.Document d = new com.translationapp.model.Document();
             d.setTitle("Test Doc " + i);
@@ -47,14 +58,16 @@ public class DataInitializer implements CommandLineRunner {
             d.setSourceLanguage("EN");
             d.setTargetLanguage(i % 2 == 0 ? "DE" : "FR");
             d.setStatus(i % 3 == 0 ? com.translationapp.model.DocumentStatus.OFFEN : com.translationapp.model.DocumentStatus.KORREKTUR);
-            d.setCreator(u1);
+            d.setCreator(creator);
             if (d.getStatus() != com.translationapp.model.DocumentStatus.OFFEN) {
-                d.setReviewer(r1);
+                d.setReviewer(reviewer);
             }
             documentRepository.save(d);
         }
+    }
 
-        System.out.println("Test users and 6 documents initialized for E2E tests.");
+    private User ensureUserExists(String username, String password, Role role) {
+        return userRepository.findByUsername(username).orElseGet(() -> saveUser(username, password, role));
     }
 
     private User saveUser(String username, String password, Role role) {

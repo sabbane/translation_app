@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard UX and Filters', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('disableManual', 'true');
+    });
     // Login as user-1
     await page.goto('/');
     await page.fill('#username', 'user-1');

@@ -1,7 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Security and RBAC', () => {
-  
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('disableManual', 'true');
+    });
+  });
+
   test('regular user should not access user management page', async ({ page }) => {
     // 1. Login as a normal user
     await page.goto('/');

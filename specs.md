@@ -91,4 +91,13 @@ Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard. Die Ansicht kann
 * **Unit Tests (Service Layer):** Isolierte Tests der Geschäftslogik in `UserService` und `DocumentService` unter Verwendung von Mockito für die Repositories.
 * **Unit Tests (Controller Layer):** Validierung der REST-Endpunkte und RBAC-Berechtigungen mittels Mockito-Mocks für die Service-Ebene, um eine schnelle Testausführung ohne Spring-Kontext-Overhead zu gewährleisten.
 * **Integration Tests:** Umfassende End-to-End-Tests (`DocumentIntegrationTest`, `UserIntegrationTest`), welche die App mit einer echten PostgreSQL-Testdatenbank (`translation_db_test`) hochfahren und REST-Aufrufe validieren.
-* **E2E UI Tests (Regression Testing):** Frontend-Workflows und UI-Komponenten (inkl. der Dashboard-UX) werden durch eine Playwright E2E-Testsuite abgesichert.
+* **E2E UI Tests (Regression Testing):** Frontend Workflows und UI-Komponenten (inkl. der Dashboard-UX) werden durch eine Playwright E2E-Testsuite abgesichert.
+
+## 11. Benutzerhandbuch (User Manual)
+* **Format:** Interaktives Popup (direkte Anzeige).
+* **Trigger:** Nach dem Login erscheint ein Popup, das dem Benutzer eine Übersicht der App-Funktionen in seiner bevorzugten Sprache anzeigt.
+* **Inhalt:** 
+  * Einleitung (Was ist die App?).
+  * Funktionen für User (Erstellen, Übersetzen, Zuweisen).
+  * Funktionen für Reviewer (Prüfen, Korrigieren, Abschließen).
+* **Sprachen:** Deutsch, Englisch, Französisch und Arabisch.
