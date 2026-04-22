@@ -82,10 +82,10 @@ const Dashboard: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'OFFEN': return <span className="badge badge-draft">Entwurf</span>;
-      case 'IN_PRUEFUNG': return <span className="badge badge-review">In Prüfung</span>;
-      case 'KORREKTUR': return <span className="badge badge-correction">Korrektur</span>;
-      case 'ERLEDIGT': return <span className="badge badge-completed">Fertig</span>;
+      case 'OFFEN': return <span className="badge badge-draft">{t('status.draft')}</span>;
+      case 'IN_PRUEFUNG': return <span className="badge badge-review">{t('status.in_review')}</span>;
+      case 'KORREKTUR': return <span className="badge badge-correction">{t('status.correction')}</span>;
+      case 'ERLEDIGT': return <span className="badge badge-completed">{t('status.completed')}</span>;
       default: return <span className="badge">{status}</span>;
     }
   };

@@ -1,103 +1,71 @@
 # Projekt Spezifikation: Übersetzungs- und Review-Tool
 
 ## 1. Technologie-Stack
-* **Backend:** Java, Spring Boot (REST API)
+* **Backend:** Java, Spring Boot 3.4.3 (REST API)
 * **Frontend:** React, TypeScript (Vite)
-* **Bibliotheken:** Mammoth (DOCX Import), docx (DOCX Export), Lucide-React (Icons), Axios
-* **Datenbank:** PostgreSQL (Lokal: `translation_db`, Test: `translation_db_test`)
+* **Styling:** CSS3 mit CSS-Variablen für Themes und **RTL-Unterstützung (Right-To-Left)** für Arabisch.
+* **Bibliotheken:** Mammoth (DOCX Import), docx (DOCX Export), Lucide-React (Icons), Axios, i18next (Lokalisierung)
+* **Datenbank:** PostgreSQL 18
+    * **Entwicklung/Produktion:** `translation_db`
+    * **Automatisierte Tests:** `translation_db_test` (Isoliert)
 * **Authentifizierung:** Spring Security mit JWT (JSON Web Tokens)
-* **Testing:** JUnit 5, Mockito, Playwright (E2E), Fake Repositories (Unit & Integration Tests)
+* **Testing:** JUnit 5, Mockito, Playwright (E2E), Integrationstests gegen PostgreSQL.
 
 ## 2. Kernfunktionalität & UI
-* **Split-Screen-Editor:** Die Benutzeroberfläche stellt ein zweigeteiltes Textfeld bereit. Auf der linken Seite wird der Originaltext eingegeben/angezeigt, auf der rechten Seite die Übersetzung.
-* **Datei Import/Export:** Nahtloser Import von `.txt` und `.docx` Dateien sowie Export der Übersetzungen als professionelle `.docx`-Dokumente.
-* **Modernes Design:** Verwendung von Lucide-Icons, benutzerdefinierten Modalen (für Bestätigungen/Zuweisungen) und einem konsistenten Farbschema.
-* **UX & Feedback:** Elegante Toast-Benachrichtigungen für System-Feedback (Erfolg/Fehler) und animierte Übergänge zwischen den Dashboard-Ansichten.
-* **Unterstützte Sprachen:** Englisch, Deutsch, Französisch (sowohl als Quell- als auch als Zielsprache wählbar).
+* **Split-Screen-Editor:** Zweigeteiltes Textfeld für Original (Links) und Übersetzung (Rechts).
+* **Datei Import/Export:** Import von `.txt` und `.docx`, Export als `.docx`.
+* **Multilingualität & RTL:** Vollständige Unterstützung für **Deutsch, Englisch, Französisch und Arabisch**. Das Layout wechselt bei Arabisch automatisch in den **RTL-Modus** (Spiegelung der UI).
+* **Übersetzte Workflow-Status:** Alle Dokumenten-Status (Entwurf, In Prüfung, etc.) werden dynamisch in der gewählten Systemsprache angezeigt.
+* **UX & Feedback:** Toast-Benachrichtigungen und animierte Dashboard-Übergänge.
 
 ## 3. Rollen und Berechtigungen (RBAC)
-Das System nutzt Role-Based Access Control (RBAC) mit drei spezifischen Rollen:
-
 | Rolle | Zugriffsrechte |
 | :--- | :--- |
-| **Admin** | Zugriff auf alle Dokumente im System, allerdings im strikten **Read-Only Modus** (inkl. visuellem Hinweis). Kann Dokumente löschen, aber nicht verändern. Exklusiver Zugriff auf die Benutzerverwaltung (CRUD für User). Ein Admin kann sich nicht selbst löschen. |
-| **User** | Darf neue Übersetzungsdokumente erstellen und den Text übersetzen. Darf das Dokument einem spezifischen Reviewer mit Fristsetzung zuweisen. Nur Lese-Zugriff, wenn das Dokument `IN_PRUEFUNG` ist. Kann eigene Dokumente löschen. Kein Zugriff auf die Benutzerverwaltung. |
-| **Reviewer** | Nur Lese- und Schreibzugriff auf Dokumente, die ihm explizit zugewiesen wurden. Darf diese editieren und den Status ändern (z.B. zurück auf `KORREKTUR` oder auf `ERLEDIGT`). |
+| **Admin** | Zugriff auf alle Dokumente (Read-Only). Benutzerverwaltung (CRUD). Kann sich nicht selbst löschen. |
+| **User** | Erstellen und Übersetzen. Zuweisung an Reviewer mit Deadline. Nur Lese-Zugriff bei Status `IN_PRUEFUNG` oder `ERLEDIGT`. |
+| **Reviewer** | Zugriff auf zugewiesene Dokumente. Bearbeitung und Statusänderung (`KORREKTUR` oder `ERLEDIGT`). |
 
-## 4. Dokumenten-Workflow und Status
-Jedes Übersetzungsdokument durchläuft einen definierten Lebenszyklus mit folgenden Statuswerten:
+## 4. Dokumenten-Workflow und Status (Lokalisiert)
+Die Statuswerte werden in der Benutzeroberfläche übersetzt dargestellt:
 
-| Status | Beschreibung |
-| :--- | :--- |
-| **OFFEN** | Ein neues Dokument wurde erstellt, aber die Übersetzung ist noch nicht abgeschlossen. |
-| **IN_PRUEFUNG** | Der "User" hat die Übersetzung beendet und das Dokument einem "Reviewer" zur finalen Freigabe zugewiesen. |
-| **KORREKTUR** | Der "Reviewer" fordert Änderungen am Dokument an. |
-| **ERLEDIGT** | Der "Reviewer" hat das Dokument abgenommen. Es ist danach für alle Rollen schreibgeschützt (Read-Only). |
+| Interner Status | DE | EN | FR | AR |
+| :--- | :--- | :--- | :--- | :--- |
+| **OFFEN** | Entwurf | Draft | Brouillon | مسودة |
+| **IN_PRUEFUNG** | In Prüfung | In Review | En révision | قيد المراجعة |
+| **KORREKTUR** | Korrektur | Correction | Correction | تصحيح |
+| **ERLEDIGT** | Fertig | Done | Terminé | تم |
 
-## 5. Externe API-Integration (Automatische Vorübersetzung)
-* **Tool:** DeepL API Free (REST API).
-* **Backend-Architektur:** Ein Spring Boot Service (`DeepLService`) sendet die REST-Anfragen an die DeepL API. Die Geschäftslogik ist in Services kapselt, während ein `GlobalExceptionHandler` für einheitliche Fehlermeldungen sorgt. Der API-Key ist in den `application.properties` hinterlegt. Bei Tests wird der Service per `@TestConfiguration` gemockt.
-* **Frontend UI-Interaktion:**
-  * Die Vorübersetzung wird durch den "Automatisch Übersetzen" Button ausgelöst.
-  * Beim Klick wird der Button blockiert (Ladezustand).
-  * Das Backend kommuniziert mit DeepL und füllt die rechte Seite (Übersetzung).
-  * Ein maschinell übersetztes Dokument verbleibt zunächst im Status `OFFEN`.
+## 5. Externe API-Integration (Auto-Translation)
+* **Tool:** DeepL API.
+* **Logik:** Gekapselt im `DeepLService`. API-Key über Umgebungsvariable `DEEPL_API_KEY`.
+* **Testing:** In Tests wird die API per `@Primary` Mock-Service übersteuert, um Kosten und Abhängigkeiten zu minimieren.
 
-## 6. Reviewer-Zuweisung (Workflow)
-* **UI-Element:** Ein Bereich "Reviewer-Zuweisung" im Editor, sichtbar für "Users".
-* **Datenquelle:** Dynamisch befüllt mit allen Benutzern der Rolle `REVIEWER`.
-* **Ablauf:** Der "User" wählt den Reviewer, definiert eine **Deadline** (Datum/Uhrzeit) und klickt auf Speichern. Das Backend verknüpft die `reviewer_id` und ändert den Status auf `IN_PRUEFUNG`. Danach ist das Dokument für den "User" schreibgeschützt.
+## 6. Reviewer-Zuweisung
+* User wählt einen Reviewer aus der Liste und setzt eine Deadline.
+* Status wechselt auf `IN_PRUEFUNG`.
+* Das Dokument wird für den Creator gesperrt (Read-Only), solange es beim Reviewer liegt.
 
-## 7. Löschberechtigungen für Dokumente & Benutzer
-* **Admin:** Kann jedes Dokument und jeden Benutzer (außer sich selbst) im System jederzeit löschen. Bei Löschung eines Benutzers werden dank kaskadierenden Lösch-Befehlen in der Datenbank auch alle von diesem Benutzer erstellten Dokumente sowie seine Zuordnungen als Reviewer sauber entfernt.
-* **User:** Darf ausschließlich Dokumente löschen, die er selbst erstellt hat (Prüfung der `creator_id`).
-* **Frontend:** Lösch-Icons (Papierkorb) werden nur gerendert, wenn der User die entsprechende Berechtigung besitzt.
+## 7. Löschberechtigungen & Datenbankintegrität
+* **Kaskadierung:** Beim Löschen eines Users werden durch die Datenbank-Constraints alle zugehörigen Dokumente automatisch entfernt (Vermeidung von Datenleichen).
+* **Berechtigungsprüfung:** Sowohl im Frontend (UI-Elemente ausgeblendet) als auch im Backend (Security-Check) abgesichert.
 
-## 8. Dashboards und Listenansichten
-Nach dem Login sehen Benutzer ein rollenspezifisches Dashboard. Die Ansicht kann dynamisch zwischen einer Tabellen- und einer modernen Kachel-Ansicht (Tile View / Grid Layout) umgeschaltet werden.
+## 8. Dashboards
+* **Ansichten:** Umschaltbar zwischen Tabellen-Ansicht und Kachel-Ansicht (Grid).
+* **Grid-Layout:** Responsives 4-Spalten-Layout mit Icons (Brille für Review, Siegel für Erledigt).
+* **Filter:** Suche nach Text, Status-Filter und Sprachkombinations-Filter (z.B. DE -> EN).
 
-* **Ansichts-Optionen:**
-  * **Tabellen-Ansicht:** Klassische tabellarische Darstellung für maximale Übersichtlichkeit.
-  * **Kachel-Ansicht (Grid Layout):** Ein responsives 4-Spalten-Grid mit Premium-Animationen, Micro-Interactions und visuellen Status-Indikatoren (z.B. ein geprägtes Siegel für "Erledigt" und Brillen-Icon für "In Prüfung").
-* **Filterfunktionen:** Dokumente können im Dashboard nach Suchbegriffen, ihrem aktuellen Status (z.B. Offen, In Prüfung) und spezifischen Sprachkombinationen gefiltert werden.
-* **Gemeinsame Elemente:** Titel/Auszug, Quell-/Zielsprache, Status (farbige Badges), zugewiesener Reviewer, Deadline (falls zutreffend) und Aktionen.
-* **Admin Dashboard:** Zeigt alle Dokumente an (mit Such- und Filterfunktionen) sowie einen separaten Bereich für die Verwaltung aller Systembenutzer. Keine Berechtigung, neue Dokumente zu erstellen.
-* **User Dashboard:** Zeigt nur Dokumente mit eigener `creator_id`. Button zum Erstellen neuer Dokumente vorhanden.
-* **Reviewer Dashboard:** Zeigt nur Dokumente mit eigener `reviewer_id`.
+## 9. Datenmodell (Auszug)
+* **User:** `id`, `username`, `password_hash`, `role`.
+* **Document:** `id`, `title`, `original_text`, `translated_text`, `source_language`, `target_language`, `status`, `creator_id`, `reviewer_id`, `review_deadline`.
 
-## 9. Datenmodell
-
-### User
-* `id` (UUID)
-* `username` (String, unique)
-* `password_hash` (String)
-* `role` (Enum: ADMIN, USER, REVIEWER)
-
-### Document
-* `id` (UUID)
-* `title` (String)
-* `original_text` (Text)
-* `translated_text` (Text)
-* `source_language` (String)
-* `target_language` (String)
-* `status` (Enum: OFFEN, IN_PRUEFUNG, KORREKTUR, ERLEDIGT)
-* `is_auto_translated` (Boolean)
-* `created_at` (Timestamp)
-* `creator_id` (Foreign Key -> User)
-* `reviewer_id` (Foreign Key -> User, nullable)
-* `review_deadline` (Timestamp, nullable)
-
-## 10. Testing & Qualitätssicherung
-* **Unit Tests (Service Layer):** Isolierte Tests der Geschäftslogik in `UserService` und `DocumentService` unter Verwendung von Mockito für die Repositories.
-* **Unit Tests (Controller Layer):** Validierung der REST-Endpunkte und RBAC-Berechtigungen mittels Mockito-Mocks für die Service-Ebene, um eine schnelle Testausführung ohne Spring-Kontext-Overhead zu gewährleisten.
-* **Integration Tests:** Umfassende End-to-End-Tests (`DocumentIntegrationTest`, `UserIntegrationTest`), welche die App mit einer echten PostgreSQL-Testdatenbank (`translation_db_test`) hochfahren und REST-Aufrufe validieren.
-* **E2E UI Tests (Regression Testing):** Frontend Workflows und UI-Komponenten (inkl. der Dashboard-UX) werden durch eine Playwright E2E-Testsuite abgesichert.
+## 10. Qualitätssicherung & Test-Infrastruktur
+* **Datenbank-Isolation:** Playwright und JUnit Tests nutzen ausschließlich die `translation_db_test`.
+* **Profile-aware DataInitializer:** Der `DataInitializer` befüllt die Datenbank nur im `test`-Profil mit Dummy-Daten und sorgt dort für einen Clean-State. Im Standard-Profil werden bestehende Daten geschützt.
+* **Regression Testing:** Playwright-Suite deckt Login, Workflow, UX-Toggles und Security ab. Das Benutzerhandbuch-Popup wird in Tests automatisch unterdrückt (`disableManual` Flag).
 
 ## 11. Benutzerhandbuch (User Manual)
-* **Format:** Interaktives Popup (direkte Anzeige).
-* **Trigger:** Nach dem Login erscheint ein Popup, das dem Benutzer eine Übersicht der App-Funktionen in seiner bevorzugten Sprache anzeigt.
-* **Inhalt:** 
-  * Einleitung (Was ist die App?).
-  * Funktionen für User (Erstellen, Übersetzen, Zuweisen).
-  * Funktionen für Reviewer (Prüfen, Korrigieren, Abschließen).
+* **Interaktives Popup:** Erscheint einmalig nach dem Login (oder manuell aufrufbar).
+* **Sprachwahl:** Der Inhalt passt sich der gewählten i18n-Sprache an (DE, EN, FR, AR).
+* **Inhalt:** Rollenspezifische Workflows und App-Übersicht.
+* **Persistenz:** Ein `localStorage`-Mechanismus stellt sicher, dass das Popup erst nach dem Schließen als "gelesen" markiert wird (verhindert Verschwinden durch Race-Conditions).n, Abschließen).
 * **Sprachen:** Deutsch, Englisch, Französisch und Arabisch.
